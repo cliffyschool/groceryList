@@ -14,10 +14,16 @@ class Ingredients {
   val fractionFormat = new FractionFormat()
 
   def fromLine(line: String) : Option[Ingredient] = {
-    line.split(" ") match {
-      case Array(amountRegex(amount), unit, ingredient) =>   Some(Ingredient(ingredient, getAmount(amount), getUnit(unit)))
-      case Array(amountRegex(amount), unit, "of", ingredient) => Some(Ingredient(ingredient, getAmount(amount), getUnit(unit)))
-      case _ => None
+
+    val spRgx = "([0-9/\\.]+) ([0-9/\\. ]+[ -]{1}[\\w]+\\.? [\\w]+) ([\\w\\s]+)".r
+    spRgx.findFirstMatchIn(line) match {
+      case Some(sp) if sp.groupCount == 3 => {println("here"); Some(Ingredient(sp.group(3), getAmount(sp.group(1)), getUnit(sp.group(2))))}
+      case None =>
+        line.split(" ") match {
+          case Array(amountRegex(amount), unit, ingredient) =>   Some(Ingredient(ingredient, getAmount(amount), getUnit(unit)))
+          case Array(amountRegex(amount), unit, "of", ingredient) => Some(Ingredient(ingredient, getAmount(amount), getUnit(unit)))
+          case _ => None
+        }
     }
   }
 
