@@ -25,6 +25,6 @@ class ParseUnitsSpec extends Specification with DataTables{ def is =
       "1 ounces salt"  !! 1  ! "ounces" ! salt |
       "1 oz salt"  !! 1  ! "ounces" ! salt |
       "1 oz. salt"  !! 1  ! "ounces" ! salt |>{
-      (line,expectedAmount,expectedUnit,expectedIngredient) => {parser.fromLine(line) must beSome(Ingredient(name = expectedIngredient, amount=expectedAmount, unit=expectedUnit))}
+      (line,expectedAmount,expectedUnit,expectedIngredient) => {parser.fromLine(line) must beSome(Ingredient(name = expectedIngredient, amount=expectedAmount, unit=Some(expectedUnit)))}
     }
 }

@@ -17,12 +17,13 @@ class ParseAmountsSpec extends Specification with DataTables{ def is =
       "1 cup butter" !! 1.0d ! "cups" ! "butter" |
       "1/2 c. butter" !! 0.5d ! "cups" ! "butter" |
       ".375 c. butter" !! 0.375d ! "cups" ! "butter" |
+      "4 boneless pork chops" !! 4d ! "" ! "boneless pork chops" |
       "2 10.5 oz cans diced tomatoes" !! 2d ! "10.5 oz cans" ! "diced tomatoes" |
       "2 10.5 oz. cans diced tomatoes" !! 2d ! "10.5 oz. cans" ! "diced tomatoes" |
       "2 10.5-oz. cans diced tomatoes" !! 2d ! "10.5-oz. cans" ! "diced tomatoes" |
       "2 10.5-oz cans diced tomatoes" !! 2d ! "10.5-oz cans" ! "diced tomatoes" |
       "2 10 1/2 oz cans diced tomatoes" !! 2d ! "10 1/2 oz cans" ! "diced tomatoes" |
       "0.375 cup butter" !! 0.375d ! "cups" ! "butter" |> {
-      (line,expectedAmount,expectedUnit,expectedIngredient) => {parser.fromLine(line) must beSome(Ingredient(name = expectedIngredient, amount=expectedAmount, unit=expectedUnit))}
+      (line,expectedAmount,expectedUnit,expectedIngredient) => {parser.fromLine(line) must beSome(Ingredient(name = expectedIngredient, amount=expectedAmount, unit=expectedUnit match {case "" => None case s:String => Some(s)}))}
     }
 }
