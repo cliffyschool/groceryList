@@ -19,6 +19,7 @@ class ParseAmountsSpec extends Specification with DataTables{ def is =
       ".375 c. butter" !! 0.375d ! "cups" ! true ! "butter" |
       "4 boneless pork chops" !! 4d ! "" ! false ! "boneless pork chops" |
       "6 4 oz. boneless pork chops" !! 6d ! "" ! false ! "4 oz. boneless pork chops" |
+      "a 4 oz. boneless pork chop" !! 1d ! "" ! false ! "4 oz. boneless pork chop" |
       "6 (4 oz) boneless pork chops" !! 6d ! "" ! false ! "(4 oz) boneless pork chops" |
       "2 10.5 oz cans diced tomatoes" !! 2d ! "10.5 oz cans" ! false ! "diced tomatoes" |
       "2 10.5 oz. cans diced tomatoes" !! 2d ! "10.5 oz. cans" ! false ! "diced tomatoes" |

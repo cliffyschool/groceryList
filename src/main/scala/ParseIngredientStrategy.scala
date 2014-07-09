@@ -60,7 +60,7 @@ object ParseIngredientStrategy {
     }
   }
 
-  val noUnitsRgx = (numberOrRatio.toString + " (.*)").r
+  val noUnitsRgx = s"$numberOrRatio (.*)".r
   val assumeNoUnits: (Option[String]) => Option[Ingredient] = {
     _ match {
       case None => None
