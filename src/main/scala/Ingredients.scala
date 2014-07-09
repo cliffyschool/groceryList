@@ -1,3 +1,4 @@
+import scala.collection.mutable
 
 /**
  * Created by U6017873 on 7/6/2014.
@@ -34,7 +35,19 @@ case class Unit(unit: String, known: Boolean)
 
 object Ingredients {
   def main(args: Array[String]) {
-    val line = readLine("Type an ingredient.")
-    println(line)
+    println("Type an ingredient, or ok to build list")
+    var list = mutable.MutableList[Option[Ingredient]]()
+    val i = new Ingredients
+    do {
+      val line = readLine()
+      if ("ok" == line) {
+        println(list.size)
+        val l = i.makeList(list.toSeq.flatten, Seq())
+        l.foreach(println)
+        return
+      }
+      else
+        list += i.fromLine(line)
+    } while (true)
   }
 }
