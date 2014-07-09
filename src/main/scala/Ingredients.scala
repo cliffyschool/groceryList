@@ -1,4 +1,3 @@
-import org.apache.commons.math.fraction.FractionFormat
 
 /**
  * Created by U6017873 on 7/6/2014.
@@ -6,16 +5,18 @@ import org.apache.commons.math.fraction.FractionFormat
  */
 class Ingredients {
 
-  val strategies = Seq(new AssumeEasyFormat, new AssumeIngredientContainsNumbers)
+
+  val strategies = Array(ParseIngredientStrategy.assumeEasyFormat, ParseIngredientStrategy.assumeIngredientContainsNumbers, ParseIngredientStrategy.assumeNoUnits)
 
   def fromLine(line: String) : Option[Ingredient] = {
 
-    val result = strategies.map(_.parseIngredient(Some(line))).flatten.headOption
-    result match {
-      case Some(r) => Some(r)
-      case _ => None
-      //case _ =>  case Array(amountRegex(amount), rest @ _*) => Some(Ingredient(rest.mkString(" "), getAmount(amount), None))
+    for (strategy <- strategies) {
+      val result = strategy(line match { case null => None case _ => Some(line)})
+      if (result.isDefined)
+        return result
     }
+    return None
+
   }
 
   def makeList(l1: Seq[Ingredient], l2: Seq[Ingredient]) : Seq[Ingredient] = {
@@ -26,7 +27,9 @@ class Ingredients {
   }
 }
 
-case class Ingredient(name: String, amount: Double, unit: Option[String])
+case class Ingredient(name: String, amount: Double, unit: Option[Unit])
+
+case class Unit(unit: String, known: Boolean)
 
 object Ingredients {
   def main(args: Array[String]) {
