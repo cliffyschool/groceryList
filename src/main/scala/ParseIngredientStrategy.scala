@@ -95,4 +95,15 @@ object ParseIngredientStrategy {
       case Some(line) => Some(Ingredient(name = line, amount = None, unit = None))
     }
   }
+
+  val findKnownUnit: (Option[String]) => Option[Ingredient] = {
+    _ match {
+      case _ => None
+    }
+  }
+
+  val unitPatternRgx = "[\\w\\.]+".r
+  val detectKnownUnits: (String) => Seq[Unit] = {
+    unitPatternRgx.findAllMatchIn(_).map(m => matchKnownUnit(m.matched)).flatten.filter(u => u.known).toSeq
+  }
 }
