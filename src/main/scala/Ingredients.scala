@@ -7,7 +7,10 @@ import scala.collection.mutable
 class Ingredients {
 
 
-  val strategies = Array(ParseIngredientStrategy.assumeEasyFormat, ParseIngredientStrategy.assumeIngredientContainsNumbers, ParseIngredientStrategy.assumeNoUnits)
+  val strategies = Array(ParseIngredientStrategy.assumeEasyFormat,
+    ParseIngredientStrategy.assumeIngredientContainsNumbers,
+    ParseIngredientStrategy.assumeNoUnits,
+    ParseIngredientStrategy.assumeItemNameOnly)
 
   def fromLine(line: String) : Option[Ingredient] = {
 

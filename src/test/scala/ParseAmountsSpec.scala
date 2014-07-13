@@ -22,7 +22,7 @@ class ParseAmountsSpec extends Specification with DataTables{ def is =
       "a 4 oz. boneless pork chop" !! 1d ! "" ! false ! "4 oz. boneless pork chop" |
       "6 (4 oz) boneless pork chops" !! 6d ! "" ! false ! "(4 oz) boneless pork chops" |
       "rice" !! -1d ! "" ! false ! "rice" |
-      "jasmine rice" !! -1d ! "" ! false ! "rice" |
+      "jasmine rice" !! -1d ! "" ! false ! "jasmine rice" |
       "1 chicken" !! 1d ! "" ! false ! "chicken" |
       "2 10.5 oz cans diced tomatoes" !! 2d ! "10.5 oz cans" ! false ! "diced tomatoes" |
       "2 10.5 oz. cans diced tomatoes" !! 2d ! "10.5 oz. cans" ! false ! "diced tomatoes" |
@@ -31,7 +31,12 @@ class ParseAmountsSpec extends Specification with DataTables{ def is =
       "2 10 1/2 oz cans diced tomatoes" !! 2d ! "10 1/2 oz cans" ! false ! "diced tomatoes" |
       "0.375 cup butter" !! 0.375d ! "cups" ! true ! "butter" |> {
       (line, expectedAmount, expectedUnit, expectedUnitIsKnown, expectedIngredient) => {
-        val expected = Ingredient(name = expectedIngredient, amount = Some(expectedAmount), unit = expectedUnit match {
+        val expected = Ingredient(name = expectedIngredient,
+          amount = expectedAmount match {
+            case -1 => None
+            case _ => Some(expectedAmount)
+          },
+          unit = expectedUnit match {
           case "" => None
           case s: String => Some(Unit(s, expectedUnitIsKnown))
         })

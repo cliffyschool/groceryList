@@ -88,4 +88,11 @@ object ParseIngredientStrategy {
         }
     }
   }
+
+  val assumeItemNameOnly: (Option[String]) => Option[Ingredient] = {
+    _ match {
+      case None => None
+      case Some(line) => Some(Ingredient(name = line, amount = None, unit = None))
+    }
+  }
 }
