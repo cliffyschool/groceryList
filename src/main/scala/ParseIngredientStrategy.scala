@@ -19,31 +19,47 @@ object ParseIngredientStrategy {
   val fractionFormat = new FractionFormat()
 
 
-  def getAmount(amount: String): Double = {
+  def getAmount(amount: String): Option[Double] = {
+
     amount match {
-      case "a" => 1
-      case s: String if s.contains("/") => fractionFormat.parse(amount).doubleValue()
-      case s: String => s.toDouble
+      case "a" => Some(1)
+      case s: String if s.contains("/") => Some(fractionFormat.parse(amount).doubleValue())
+      case s: String => Some(s.toDouble)
+      case _ => None
     }
   }
 
-  def matchKnownUnit(unit: String): Option[Unit] = {
-    knownUnits.get(unit) match {
-      case Some(synonym) => Some(Unit(synonym, true))
-      case None => Some(Unit(unit, false))
+  def matchKnownUnit(unitOption: Option[String]): Option[Unit] = {
+    unitOption match {
+      case Some(unit) =>
+        knownUnits.get(unit) match {
+          case Some(synonym) => Some(Unit(synonym, true))
+          case None => Some(Unit(unit, false))
+        }
+      case _ => None
     }
   }
+
+  def matchKnownUnit(unitOption: String): Option[Unit] = matchKnownUnit(unitOption match { case null => None case s: String => Some(s)})
 
   val assumeEasyFormat: (Option[String]) => Option[Ingredient] = {
     _ match {
       case Some(line) =>
         line.split(" ") match {
-          case Array(numberOrRatio(amount), unit, ingredient) => Some(Ingredient(ingredient, getAmount(amount), matchKnownUnit(unit)))
-          case Array(numberOrRatio(amount), unit, "of", ingredient) => Some(Ingredient(ingredient, getAmount(amount), matchKnownUnit(unit)))
+          case Array(numberOrRatio(amount), unitString, ingredient) =>
+            buildKnownUnitIngredient(amount, unitString, ingredient)
+          case Array(numberOrRatio(amount), unitString, "of", ingredient) =>
+            buildKnownUnitIngredient(amount, unitString, ingredient)
           case _ => None
         }
-      case _ => None
+      case None => None
     }
+  }
+
+  def buildKnownUnitIngredient(amountString: String, unitMaybe: String, name: String) = matchKnownUnit(unitMaybe) match {
+    case Some(unit) if unit.known =>
+      Some(Ingredient(name, getAmount(amountString), Some(unit)))
+    case _ => None
   }
 
   val ingredientWithNumericContentPattern = "([0-9/\\.]+) ([0-9/\\. ]+[ -]{1}[\\w]+\\.? [\\w]+) ([\\w\\s]+)".r

@@ -23,13 +23,21 @@ class Ingredients {
   def makeList(l1: Seq[Ingredient], l2: Seq[Ingredient]) : Seq[Ingredient] = {
     val combined = (l1 ++ l2)
     val r = combined.groupBy { (ingredient) => (ingredient.name, ingredient.unit)}
-      .mapValues(_.reduce { (left, right) => Ingredient(left.name, left.amount + right.amount, left.unit)})
+      .mapValues(_.reduce { (left, right) => Ingredient(left.name, combineAmounts(left, right), left.unit)})
       .values.toList
     r
   }
+
+  def combineAmounts(left: Ingredient, right: Ingredient): Option[Double] = {
+    (left.amount, right.amount) match {
+      case (Some(l), Some(r)) => Some(l + r)
+      case (Some(l), None) => Some(l)
+      case (None, Some(r)) => Some(r)
+    }
+  }
 }
 
-case class Ingredient(name: String, amount: Double, unit: Option[Unit])
+case class Ingredient(name: String, amount: Option[Double], unit: Option[Unit])
 
 case class Unit(unit: String, known: Boolean)
 
