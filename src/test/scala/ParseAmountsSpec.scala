@@ -11,12 +11,12 @@ class ParseAmountsSpec extends Specification with DataTables{ def is =
 
   def e1 =
     "line" | "expectedAmount" | "expectedUnit" | "unitIsKnown" | "expectedIngredient" |
-      "2 cups butter" !! 2.0d ! "cups" ! true ! "butter" |
-      "2 cups of butter" !! 2.0d ! "cups" ! true ! "butter" |
-      "a cup of butter" !! 1.0d ! "cups" ! true ! "butter" |
-      "1 cup butter" !! 1.0d ! "cups" ! true ! "butter" |
-      "1/2 c. butter" !! 0.5d ! "cups" ! true ! "butter" |
-      ".375 c. butter" !! 0.375d ! "cups" ! true ! "butter" |
+      "2 cups butter" !! 2.0d ! "cup" ! true ! "butter" |
+      "2 cups of butter" !! 2.0d ! "cup" ! true ! "butter" |
+      "a cup of butter" !! 1.0d ! "cup" ! true ! "butter" |
+      "1 cup butter" !! 1.0d ! "cup" ! true ! "butter" |
+      "1/2 c. butter" !! 0.5d ! "cup" ! true ! "butter" |
+      ".375 c. butter" !! 0.375d ! "cup" ! true ! "butter" |
       "4 boneless pork chops" !! 4d ! "" ! false ! "boneless pork chops" |
       "6 4 oz. boneless pork chops" !! 6d ! "" ! false ! "4 oz. boneless pork chops" |
       "a 4 oz. boneless pork chop" !! 1d ! "" ! false ! "4 oz. boneless pork chop" |
@@ -24,12 +24,12 @@ class ParseAmountsSpec extends Specification with DataTables{ def is =
       "rice" !! -1d ! "" ! false ! "rice" |
       "jasmine rice" !! -1d ! "" ! false ! "jasmine rice" |
       "1 chicken" !! 1d ! "" ! false ! "chicken" |
-      "2 10.5 oz cans diced tomatoes" !! 2d ! "10.5 oz cans" ! false ! "diced tomatoes" |
-      "2 10.5 oz. cans diced tomatoes" !! 2d ! "10.5 oz. cans" ! false ! "diced tomatoes" |
-      "2 10.5-oz. cans diced tomatoes" !! 2d ! "10.5-oz. cans" ! false ! "diced tomatoes" |
-      "2 10.5-oz cans diced tomatoes" !! 2d ! "10.5-oz cans" ! false ! "diced tomatoes" |
-      "2 10 1/2 oz cans diced tomatoes" !! 2d ! "10 1/2 oz cans" ! false ! "diced tomatoes" |
-      "0.375 cup butter" !! 0.375d ! "cups" ! true ! "butter" |> {
+      "2 10.5 oz cans diced tomatoes" !! 2d ! "10.5 oz can" ! false ! "diced tomatoes" |
+      "2 10.5 oz. cans diced tomatoes" !! 2d ! "10.5 oz. can" ! false ! "diced tomatoes" |
+      "2 10.5-oz. cans diced tomatoes" !! 2d ! "10.5-oz. can" ! false ! "diced tomatoes" |
+      "2 10.5-oz cans diced tomatoes" !! 2d ! "10.5-oz can" ! false ! "diced tomatoes" |
+      "2 10 1/2 oz cans diced tomatoes" !! 2d ! "10 1/2 oz can" ! false ! "diced tomatoes" |
+      "0.375 cup butter" !! 0.375d ! "cup" ! true ! "butter" |> {
       (line, expectedAmount, expectedUnit, expectedUnitIsKnown, expectedIngredient) => {
         val expected = Ingredient(name = expectedIngredient,
           amount = expectedAmount match {

@@ -1,3 +1,4 @@
+import org.specs2.matcher.Expectable
 import org.specs2.mutable.Specification
 
 /**
@@ -6,9 +7,10 @@ import org.specs2.mutable.Specification
 class KnownUnitsSpec extends Specification {
 
   val knownUnits = Seq(
-    "cup", "tablespoon", "pinch", "pound", "teaspoon", "can", "stick", "ounce", "fluid ounce"
+    "cup", "tablespoon", "pinch", "pound", "teaspoon", "can", "stick", "ounce", "jar"
   )
 
+  def beAKnownUnit = beSome[Unit].which(u => u.known)
 
   "known units strategy" should {
     "find all known units in a string" in {
@@ -16,11 +18,10 @@ class KnownUnitsSpec extends Specification {
       ParseIngredientStrategy.detectKnownUnits(aLine) must haveSize(5)
     }
 
-    "account for all known units" in {
-      knownUnits.map { u =>
-        val mtch = ParseIngredientStrategy.matchKnownUnit(u)
-        mtch must beSome
-        mtch.get.known must beTrue
+    "match all known units" in {
+      knownUnits.map { uStr =>
+        val u = ParseIngredientStrategy.matchKnownUnit(uStr)
+        u must beAKnownUnit
       }
     }
   }

@@ -12,19 +12,19 @@ class ParseUnitsSpec extends Specification with DataTables{ def is =
 
   def e1 =
     "line"   | "expectedAmount" | "expectedUnit" | "expectedIngredient" |
-      "1 cup salt"  !! 1 ! "cups" ! salt |
-      "1 cups of salt"  !! 1  ! "cups" ! salt |
-      "1 c. of salt"  !! 1  ! "cups" ! salt |
-      "1 tablespoon salt"  !! 1  ! "tablespoons" ! salt |
-      "1 tbsp salt"  !! 1  ! "tablespoons" ! salt |
-      "1 tbsp. salt"  !! 1  ! "tablespoons" ! salt |
-      "1 teaspoon salt"  !! 1  ! "teaspoons" ! salt |
-      "1 teaspoons salt"  !! 1  ! "teaspoons" ! salt |
-      "1 tsp salt"  !! 1  ! "teaspoons" ! salt |
-      "1 tsp. salt"  !! 1  ! "teaspoons" ! salt |
-      "1 ounces salt"  !! 1  ! "ounces" ! salt |
-      "1 oz salt"  !! 1  ! "ounces" ! salt |
-      "1 oz. salt" !! 1 ! "ounces" ! salt |
+      "1 cup salt" !! 1 ! "cup" ! salt |
+      "1 cups of salt" !! 1 ! "cup" ! salt |
+      "1 c. of salt" !! 1 ! "cup" ! salt |
+      "1 tablespoon salt" !! 1 ! "tablespoon" ! salt |
+      "1 tbsp salt" !! 1 ! "tablespoon" ! salt |
+      "1 tbsp. salt" !! 1 ! "tablespoon" ! salt |
+      "1 teaspoon salt" !! 1 ! "teaspoon" ! salt |
+      "1 teaspoons salt" !! 1 ! "teaspoon" ! salt |
+      "1 tsp salt" !! 1 ! "teaspoon" ! salt |
+      "1 tsp. salt" !! 1 ! "teaspoon" ! salt |
+      "1 ounces salt" !! 1 ! "ounce" ! salt |
+      "1 oz salt" !! 1 ! "ounce" ! salt |
+      "1 oz. salt" !! 1 ! "ounce" ! salt |
       "1 blahblah salt" !! 1 ! "" ! "blahblah salt" |> {
       (line, expectedAmount, expectedUnit, expectedIngredient) => {
         parser.fromLine(line) must beSome(Ingredient(

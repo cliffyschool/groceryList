@@ -11,11 +11,18 @@ import org.apache.commons.math.fraction.FractionFormat
 object ParseIngredientStrategy {
 
   val numberOrRatio = "(a|[0-9/\\.]+)".r
-  val knownUnits = Map("cups" -> "cups", "cup" -> "cups", "c." -> "cups",
-    "tablespoons" -> "tablespoons", "tbsp" -> "tablespoons", "tbsp." -> "tablespoons", "tablespoon" -> "tablespoons",
-    "teaspoon" -> "teaspoons", "teaspoons" -> "teaspoons", "tsp" -> "teaspoons", "tsp." -> "teaspoons",
-    "ounce" -> "ounces", "ounces" -> "ounces", "oz" -> "ounces", "oz." -> "ounces"
-  )
+  val knownUnits = KnownUnits(Seq(
+    ("cup", Seq("cups", "c.")),
+    ("tablespoon", Seq("tbsp", "tbsp.", "tablespoons")),
+    ("teaspoon", Seq("tsp", "tsp.", "teaspoons")),
+    ("ounce", Seq("oz", "oz.", "ounces")),
+    ("pinch", Seq("pinches")),
+    ("pound", Seq("pounds", "lbs", "lbs.", "lb.")),
+    ("can", Seq("cans")),
+    ("stick", Seq("sticks")),
+    ("jar", Seq("jars"))
+  ))
+
   val fractionFormat = new FractionFormat()
 
 
@@ -32,8 +39,8 @@ object ParseIngredientStrategy {
   def matchKnownUnit(unitOption: Option[String]): Option[Unit] = {
     unitOption match {
       case Some(unit) =>
-        knownUnits.get(unit) match {
-          case Some(synonym) => Some(Unit(synonym, true))
+        knownUnits.find(unit) match {
+          case Some(known) => Some(known)
           case None => Some(Unit(unit, false))
         }
       case _ => None
