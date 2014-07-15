@@ -24,6 +24,11 @@ class KnownUnitsSpec extends Specification {
         u must beAKnownUnit
       }
     }
+
+    "use first number as quantity" in {
+      val u = Seq(Some("1 cup butter")).map(ParseIngredientStrategy.assumeKnownUnit)
+      u.flatten.seq(0).amount must equalTo(1)
+    }
   }
 
 }

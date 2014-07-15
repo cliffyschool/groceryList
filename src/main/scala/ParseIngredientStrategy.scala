@@ -103,14 +103,37 @@ object ParseIngredientStrategy {
     }
   }
 
-  val findKnownUnit: (Option[String]) => Option[Ingredient] = {
+  val assumeKnownUnit: (Option[String]) => Option[Ingredient] = {
     _ match {
+      case Some(line) =>
+        detectKnownUnits(line).headOption match {
+          case None => None
+          case Some(firstMatch) =>
+            findFirstNumberBefore(line, firstMatch._2) match {
+              case _ => None
+            }
+
+        }
+      case _ => None
+    }
+  }
+
+  def findFirstNumberBefore(line: String, pos: Int) = {
+    numberOrRatio.findFirstMatchIn(line) match {
+      case Some(matched) if matched.start < pos => Some(getAmount(matched.matched))
       case _ => None
     }
   }
 
   val unitPatternRgx = "[\\w\\.]+".r
-  val detectKnownUnits: (String) => Seq[Unit] = {
-    unitPatternRgx.findAllMatchIn(_).map(m => matchKnownUnit(m.matched)).flatten.filter(u => u.known).toSeq
+  val detectKnownUnits: (String) => Seq[(Unit,Int)] = {
+    unitPatternRgx.findAllMatchIn(_)
+      .map(m => (matchKnownUnit(m.matched),m.start))
+      .map{
+            case (Some(knownUnit),foundAt) if knownUnit.known => Some((knownUnit,foundAt))
+            case _ => None
+      }
+      .flatten
+      .toSeq
   }
 }
