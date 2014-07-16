@@ -1,4 +1,5 @@
 import org.apache.commons.math.fraction.FractionFormat
+import scala.util.Try
 
 /**
  * Created by cfreeman on 7/8/14.
@@ -10,7 +11,7 @@ import org.apache.commons.math.fraction.FractionFormat
  */
 object ParseIngredientStrategy {
 
-  val numberOrRatio = "(a|[0-9/\\.]+)".r
+  val numberOrRatio = "(a|([0-9]+\\s)?([0-9]+)/([0-9]+)|[0-9]+(\\.[0-9]+)?)".r
   val knownUnits = KnownUnits(Seq(
     ("cup", Seq("cups", "c.")),
     ("tablespoon", Seq("tbsp", "tbsp.", "tablespoons")),
@@ -30,7 +31,11 @@ object ParseIngredientStrategy {
 
     amount match {
       case "a" => Some(1)
-      case s: String if s.contains("/") => Some(fractionFormat.parse(amount).doubleValue())
+      case s: String if s.contains("/") =>
+        val split = s.split("\\s+").map(_.trim).filter(_.length > 0)
+        val ratio = Try[Double](fractionFormat.parse(split(split.length-1)).doubleValue()).getOrElse(-1.0)
+        val wholeNumber = if (split.length > 1) Integer.parseInt(split(split.length -2)) else 0
+        Some(wholeNumber + ratio)
       case s: String => Some(s.toDouble)
       case _ => None
     }
@@ -104,18 +109,12 @@ object ParseIngredientStrategy {
   }
 
   val assumeKnownUnit: (Option[String]) => Option[Ingredient] = {
-    _ match {
-      case Some(line) =>
-        detectKnownUnits(line).headOption match {
-          case None => None
-          case Some(firstMatch) =>
-            findFirstNumberBefore(line, firstMatch._2) match {
-              case _ => None
-            }
-
-        }
-      case _ => None
-    }
+    for {
+      line <- _
+      firstMatch <- detectKnownUnits(line).headOption
+      firstNum <- findFirstNumberBefore(line, firstMatch._2)
+      everythingAfterUnit = line.substring(firstMatch._3).trim
+    } yield Ingredient(name=everythingAfterUnit, amount = firstNum, unit=Some(firstMatch._1))
   }
 
   def findFirstNumberBefore(line: String, pos: Int) = {
@@ -126,11 +125,11 @@ object ParseIngredientStrategy {
   }
 
   val unitPatternRgx = "[\\w\\.]+".r
-  val detectKnownUnits: (String) => Seq[(Unit,Int)] = {
+  val detectKnownUnits: (String) => Seq[(Unit,Int,Int)] = {
     unitPatternRgx.findAllMatchIn(_)
-      .map(m => (matchKnownUnit(m.matched),m.start))
+      .map(m => (matchKnownUnit(m.matched),m.start, m.end))
       .map{
-            case (Some(knownUnit),foundAt) if knownUnit.known => Some((knownUnit,foundAt))
+            case (Some(knownUnit),start, end) if knownUnit.known => Some((knownUnit,start,end))
             case _ => None
       }
       .flatten
