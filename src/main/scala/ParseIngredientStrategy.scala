@@ -58,10 +58,14 @@ object ParseIngredientStrategy {
     _ match {
       case Some(line) =>
         line.split(" ") match {
-          case Array(numberOrRatio(amount), unitString, ingredient) =>
+          case Array(amount, unitString, "of", ingredient) if amount.matches(numberOrRatio.toString) =>
+            println("of candidate")
             buildKnownUnitIngredient(amount, unitString, ingredient)
-          case Array(numberOrRatio(amount), unitString, "of", ingredient) =>
+          case Array(amount, unitString, ingredient)  if amount.matches(numberOrRatio.toString) =>
             buildKnownUnitIngredient(amount, unitString, ingredient)
+          case Array(amount, _*) =>
+            println("Generic")
+            None
           case _ => None
         }
       case None => None

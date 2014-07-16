@@ -59,6 +59,11 @@ class KnownUnitsSpec extends Specification {
       val u = ParseIngredientStrategy.assumeKnownUnit(Some("1 cupz butter"))
       u must beNone
     }
+
+    "handle empty ingredient name" in {
+      val u = ParseIngredientStrategy.assumeKnownUnit(Some("3 cups"))
+      u must beSome(Ingredient(name="", amount = Some(3), unit = Some(Unit("cup", true))))
+    }
   }
 
 }

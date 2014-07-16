@@ -7,17 +7,20 @@ import scala.collection.mutable
 class Ingredients {
 
 
-  val strategies = Array(ParseIngredientStrategy.assumeEasyFormat,
-    ParseIngredientStrategy.assumeIngredientContainsNumbers,
-    ParseIngredientStrategy.assumeNoUnits,
-    ParseIngredientStrategy.assumeItemNameOnly)
+  val strategies = Map("easy" -> ParseIngredientStrategy.assumeEasyFormat,
+                        "ingredientWithNumbers" -> ParseIngredientStrategy.assumeIngredientContainsNumbers,
+                        "noUnits" -> ParseIngredientStrategy.assumeNoUnits,
+                        "knownUnit" -> ParseIngredientStrategy.assumeKnownUnit,
+                        "itemNameOnly" -> ParseIngredientStrategy.assumeItemNameOnly)
 
   def fromLine(line: String) : Option[Ingredient] = {
 
     for (strategy <- strategies) {
-      val result = strategy(line match { case null => None case _ => Some(line)})
-      if (result.isDefined)
+      val result = strategy._2(line match { case null => None case _ => Some(line)})
+      if (result.isDefined) {
+        println(s"On line '$line', used ${strategy._1} strategy")
         return result
+      }
     }
     return None
 
