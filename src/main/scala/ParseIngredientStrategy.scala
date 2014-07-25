@@ -11,7 +11,7 @@ import scala.util.Try
  */
 object ParseIngredientStrategy {
 
-  val numberOrRatio = "(a|([0-9]+\\s)?([0-9]+)/([0-9]+)|[0-9]+(\\.[0-9]+)?)".r
+  val numberOrRatio = "(a|([0-9]+\\s)?([0-9]+)/([0-9]+)|[0-9]?(\\.[0-9]+)?)".r
   val knownUnits = KnownUnits(Seq(
     ("cup", Seq("cups", "c.")),
     ("tablespoon", Seq("tbsp", "tbsp.", "tablespoons")),
@@ -80,26 +80,24 @@ object ParseIngredientStrategy {
 
   val ingredientWithNumericContentPattern = "([0-9/\\.]+) ([0-9/\\. ]+[ -]{1}[\\w]+\\.? [\\w]+) ([\\w\\s]+)".r
   val assumeIngredientContainsNumbers: (Option[String]) => Option[Ingredient] = {
-    _ match {
-      case None => None
-      case Some(line) =>
-        ingredientWithNumericContentPattern.findFirstMatchIn(line) match {
-          case Some(sp) if sp.groupCount == 3 => {
-            Some(Ingredient(sp.group(3), getAmount(sp.group(1)), matchKnownUnit(sp.group(2))))
-          }
-          case _ => None
-        }
-    }
+    for {
+      line <- _
+      knownUnit <- detectKnownUnits(line).headOption
+      unitQuantity <- findFirstNumberBefore(line, knownUnit._2)
+      firstNumMatch <- numberOrRatio.findFirstMatchIn(line)
+      firstNumOverall <- getAmount(firstNumMatch.matched)
+      if unitQuantity._2 != firstNumMatch.start
+      everythingAfterFirstNum = line.substring(firstNumMatch.end)
+    } yield Ingredient(name=everythingAfterFirstNum, unit=None, amount=Some(firstNumOverall))
   }
 
-  val noUnitsRgx = s"$numberOrRatio (.*)".r
   val assumeNoUnits: (Option[String]) => Option[Ingredient] = {
     _ match {
       case None => None
       case Some(line) =>
-        noUnitsRgx.findFirstMatchIn(line) match {
-          case Some(sp) if sp.groupCount == 2 =>
-            Some(Ingredient(amount = getAmount(sp.group(1)), unit = None, name = sp.group(2)))
+        numberOrRatio.findFirstMatchIn(line) match {
+          case Some(num) =>
+            Some(Ingredient(amount = getAmount(num.matched), unit=None, name=line.substring(num.end).trim))
           case _ => None
         }
     }
@@ -118,12 +116,12 @@ object ParseIngredientStrategy {
       firstMatch <- detectKnownUnits(line).headOption
       firstNum <- findFirstNumberBefore(line, firstMatch._2)
       everythingAfterUnit = line.substring(firstMatch._3).trim
-    } yield Ingredient(name=everythingAfterUnit, amount = firstNum, unit=Some(firstMatch._1))
+    } yield Ingredient(name=everythingAfterUnit, amount = firstNum._1, unit=Some(firstMatch._1))
   }
 
   def findFirstNumberBefore(line: String, pos: Int) = {
     numberOrRatio.findFirstMatchIn(line) match {
-      case Some(matched) if matched.start < pos => Some(getAmount(matched.matched))
+      case Some(matched) if matched.start < pos => Some((getAmount(matched.matched), matched.start, matched.end))
       case _ => None
     }
   }
