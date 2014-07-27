@@ -22,12 +22,11 @@ class Ingredients {
         return result
       }
     }
-    return None
-
+    None
   }
 
   def makeList(l1: Seq[Ingredient], l2: Seq[Ingredient]) : Seq[Ingredient] = {
-    val combined = (l1 ++ l2)
+    val combined = l1 ++ l2
     val r = combined.groupBy { (ingredient) => (ingredient.name, ingredient.unit)}
       .mapValues(_.reduce { (left, right) => Ingredient(left.name, combineAmounts(left, right), left.unit)})
       .values.toList
@@ -39,6 +38,7 @@ class Ingredients {
       case (Some(l), Some(r)) => Some(l + r)
       case (Some(l), None) => Some(l)
       case (None, Some(r)) => Some(r)
+      case (None, None) => None
     }
   }
 }

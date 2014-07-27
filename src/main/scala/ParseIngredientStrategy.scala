@@ -33,8 +33,8 @@ object ParseIngredientStrategy {
       case "a" => Some(1)
       case s: String if s.contains("/") =>
         val split = s.split("\\s+").map(_.trim).filter(_.length > 0)
-        val ratio = Try[Double](fractionFormat.parse(split(split.length-1)).doubleValue()).getOrElse(-1.0)
-        val wholeNumber = if (split.length > 1) Integer.parseInt(split(split.length -2)) else 0
+        val ratio = Try[Double](fractionFormat.parse(split(split.length - 1)).doubleValue()).getOrElse(-1.0)
+        val wholeNumber = if (split.length > 1) Integer.parseInt(split(split.length - 2)) else 0
         Some(wholeNumber + ratio)
       case s: String if s.length > 0 => Some(s.toDouble)
       case _ => None
@@ -88,7 +88,6 @@ object ParseIngredientStrategy {
     case _ => None
   }
 
-  val ingredientWithNumericContentPattern = "([0-9/\\.]+) ([0-9/\\. ]+[ -]{1}[\\w]+\\.? [\\w]+) ([\\w\\s]+)".r
   val assumeIngredientContainsNumbers: (Option[String]) => Option[Ingredient] = {
     for {
       line: String <- _
@@ -132,13 +131,6 @@ object ParseIngredientStrategy {
       if unitQualifier._2 == firstNumOverall.start
       everythingAfterUnit = line.substring(firstMatch._3).trim
     } yield Ingredient(name = everythingAfterUnit, amount = Some(unitQualifier._1), unit = Some(firstMatch._1))
-  }
-
-  def findFirstNumberBefore(line: String, pos: Int) = {
-    numberOrRatio.findFirstMatchIn(line) match {
-      case Some(matched) if matched.start < pos => Some((getAmount(matched.matched), matched.start, matched.end))
-      case _ => None
-    }
   }
 
   def findLastNumberBefore(line: String, pos: Int) = {
