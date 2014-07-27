@@ -24,11 +24,11 @@ class ParseAmountsSpec extends Specification with DataTables{ def is =
       "rice" !! -1d ! "" ! false ! "rice" |
       "jasmine rice" !! -1d ! "" ! false ! "jasmine rice" |
       "1 chicken" !! 1d ! "" ! false ! "chicken" |
-      "2 10.5 oz cans diced tomatoes" !! 2d ! "10.5 oz can" ! false ! "diced tomatoes" |
-      "2 10.5 oz. cans diced tomatoes" !! 2d ! "10.5 oz. can" ! false ! "diced tomatoes" |
-      "2 10.5-oz. cans diced tomatoes" !! 2d ! "10.5-oz. can" ! false ! "diced tomatoes" |
-      "2 10.5-oz cans diced tomatoes" !! 2d ! "10.5-oz can" ! false ! "diced tomatoes" |
-      "2 10 1/2 oz cans diced tomatoes" !! 2d ! "10 1/2 oz can" ! false ! "diced tomatoes" |
+      "2 10.5 oz cans diced tomatoes" !! 2d ! "10.5 ounce can" ! false ! "diced tomatoes" |
+      "2 10.5 oz. cans diced tomatoes" !! 2d ! "10.5 ounce can" ! false ! "diced tomatoes" |
+      "2 10.5-oz. cans diced tomatoes" !! 2d ! "10.5 ounce can" ! false ! "diced tomatoes" |
+      "2 10.5-oz cans diced tomatoes" !! 2d ! "10.5 ounce can" ! false ! "diced tomatoes" |
+      "2 10 1/2 oz cans diced tomatoes" !! 2d ! "10.5 ounce can" ! false ! "diced tomatoes" |
       "0.375 cup butter" !! 0.375d ! "cup" ! true ! "butter" |> {
       (line, expectedAmount, expectedUnit, expectedUnitIsKnown, expectedIngredient) => {
         val expected = Ingredient(name = expectedIngredient,

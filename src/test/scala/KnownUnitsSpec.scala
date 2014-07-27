@@ -1,4 +1,3 @@
-import org.specs2.matcher.Expectable
 import org.specs2.mutable.Specification
 
 /**
@@ -40,13 +39,13 @@ class KnownUnitsSpec extends Specification {
       u must beSome(Ingredient(amount=Some(1.53),unit=Some(Unit("cup", true)), name="butter"))
     }
 
-    "ignore numbers after the first number and before the first unit" in {
-      val u = ParseIngredientStrategy.assumeKnownUnit(Some("9 2 8 19 4.5 6 1/2 cup butter"))
-      u must beSome(Ingredient(amount=Some(9),unit=Some(Unit("cup", true)), name="butter"))
+    "return None if the amount qualifying the unit is not the first number" in {
+      val u = ParseIngredientStrategy.assumeKnownUnit(Some("6 8 oz. steaks"))
+      u must beNone
     }
 
-    "ignore everything between the first number and the first unit" in {
-      val u = ParseIngredientStrategy.assumeKnownUnit(Some("4 tra lee, tra la, 2 8 19 4.5 6 1/2 cup butter"))
+    "ignore non-numbers between the first number and the first unit" in {
+      val u = ParseIngredientStrategy.assumeKnownUnit(Some("4 tra lee, tra la cup butter"))
       u must beSome(Ingredient(amount=Some(4),unit=Some(Unit("cup", true)), name="butter"))
      }
 

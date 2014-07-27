@@ -11,7 +11,7 @@ import scala.util.Try
  */
 object ParseIngredientStrategy {
 
-  val numberOrRatio = "(a|([0-9]+\\s)?([0-9]+)/([0-9]+)|[0-9]?(\\.[0-9]+)?)".r
+  val numberOrRatio = "(^a|(\\d+\\s)?(\\d+)/(\\d+)|\\d*(\\.\\d+)?)".r
   val knownUnits = KnownUnits(Seq(
     ("cup", Seq("cups", "c.")),
     ("tablespoon", Seq("tbsp", "tbsp.", "tablespoons")),
@@ -36,7 +36,7 @@ object ParseIngredientStrategy {
         val ratio = Try[Double](fractionFormat.parse(split(split.length-1)).doubleValue()).getOrElse(-1.0)
         val wholeNumber = if (split.length > 1) Integer.parseInt(split(split.length -2)) else 0
         Some(wholeNumber + ratio)
-      case s: String => Some(s.toDouble)
+      case s: String if s.length > 0 => Some(s.toDouble)
       case _ => None
     }
   }
@@ -82,13 +82,18 @@ object ParseIngredientStrategy {
   val assumeIngredientContainsNumbers: (Option[String]) => Option[Ingredient] = {
     for {
       line <- _
-      knownUnit <- detectKnownUnits(line).headOption
-      unitQuantity <- findFirstNumberBefore(line, knownUnit._2)
+      knownUnits = detectKnownUnits(line)
+      if knownUnits.length >= 2
+      qualifierUnit = knownUnits(0)
+      mainUnit = knownUnits(1)
+      qualifierQuantityMaybe <- findLastNumberBefore(line, qualifierUnit._2)
+      qualifierQuantity <- qualifierQuantityMaybe
       firstNumMatch <- numberOrRatio.findFirstMatchIn(line)
       firstNumOverall <- getAmount(firstNumMatch.matched)
-      if unitQuantity._2 != firstNumMatch.start
-      everythingAfterFirstNum = line.substring(firstNumMatch.end)
-    } yield Ingredient(name=everythingAfterFirstNum, unit=None, amount=Some(firstNumOverall))
+      if (qualifierQuantity._2 != firstNumMatch.start)
+      qualifiedUnit = buildQualifiedUnit(qualifierQuantity._1, qualifierUnit._1, mainUnit._1)
+      everythingAfterMainUnit = line.substring(mainUnit._3).trim
+    } yield Ingredient(name = everythingAfterMainUnit, unit = Some(qualifiedUnit), amount = Some(firstNumOverall))
   }
 
   val assumeNoUnits: (Option[String]) => Option[Ingredient] = {
@@ -97,6 +102,7 @@ object ParseIngredientStrategy {
       case Some(line) =>
         numberOrRatio.findFirstMatchIn(line) match {
           case Some(num) =>
+            println("nounits: matched: " + num.matched)
             Some(Ingredient(amount = getAmount(num.matched), unit=None, name=line.substring(num.end).trim))
           case _ => None
         }
@@ -114,9 +120,12 @@ object ParseIngredientStrategy {
     for {
       line <- _
       firstMatch <- detectKnownUnits(line).headOption
-      firstNum <- findFirstNumberBefore(line, firstMatch._2)
+      unitQualifierMaybe <- findLastNumberBefore(line, firstMatch._2)
+      unitQualifier <- unitQualifierMaybe
+      firstNumOverall <- numberOrRatio.findFirstMatchIn(line)
+      if (unitQualifier._2 == firstNumOverall.start)
       everythingAfterUnit = line.substring(firstMatch._3).trim
-    } yield Ingredient(name=everythingAfterUnit, amount = firstNum._1, unit=Some(firstMatch._1))
+    } yield Ingredient(name = everythingAfterUnit, amount = Some(unitQualifier._1), unit = Some(firstMatch._1))
   }
 
   def findFirstNumberBefore(line: String, pos: Int) = {
@@ -124,6 +133,22 @@ object ParseIngredientStrategy {
       case Some(matched) if matched.start < pos => Some((getAmount(matched.matched), matched.start, matched.end))
       case _ => None
     }
+  }
+
+  def findLastNumberBefore(line: String, pos: Int) = {
+    val lastNumberMaybe =
+      numberOrRatio
+        .findAllMatchIn(line)
+        .toSeq
+        .filter(m => m.matched.length > 0)
+        .filter(m => m.end < pos)
+        .lastOption
+
+    for {
+      lastNumber <- lastNumberMaybe
+      amount <- getAmount(lastNumber.matched)
+    } yield Some((amount, lastNumber.start, lastNumber.end))
+
   }
 
   val unitPatternRgx = "[\\w\\.]+".r
@@ -136,5 +161,11 @@ object ParseIngredientStrategy {
       }
       .flatten
       .toSeq
+  }
+
+  def buildQualifiedUnit(qualifierQuantity: Double, qualifierUnit: Unit, mainUnit: Unit): Unit = {
+    val compoundUnit = qualifierQuantity + " " + qualifierUnit.unit + " " + mainUnit.unit
+    println(compoundUnit)
+    Unit(known = false, unit = compoundUnit)
   }
 }
