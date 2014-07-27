@@ -46,7 +46,7 @@ object ParseIngredientStrategy {
       case Some(unit) =>
         knownUnits.find(unit) match {
           case Some(known) => Some(known)
-          case None => Some(Unit(unit, false))
+          case None => Some(Unit(unit = unit, known = false))
         }
       case _ => None
     }
@@ -54,22 +54,32 @@ object ParseIngredientStrategy {
 
   def matchKnownUnit(unitOption: String): Option[Unit] = matchKnownUnit(unitOption match { case null => None case s: String => Some(s)})
 
-  val assumeEasyFormat: (Option[String]) => Option[Ingredient] = {
-    _ match {
-      case Some(line) =>
-        line.split(" ") match {
-          case Array(amount, unitString, "of", ingredient) if amount.matches(numberOrRatio.toString) =>
-            println("of candidate")
-            buildKnownUnitIngredient(amount, unitString, ingredient)
-          case Array(amount, unitString, ingredient)  if amount.matches(numberOrRatio.toString) =>
-            buildKnownUnitIngredient(amount, unitString, ingredient)
-          case Array(amount, _*) =>
-            println("Generic")
-            None
-          case _ => None
-        }
-      case None => None
+  val unitPatternRgx = "[\\w\\.]+".r
+  val detectKnownUnits: (String) => Seq[(Unit, Int, Int)] = {
+    unitPatternRgx.findAllMatchIn(_)
+      .map(m => (matchKnownUnit(m.matched), m.start, m.end))
+      .map {
+      case (Some(knownUnit), start, end) if knownUnit.known => Some((knownUnit, start, end))
+      case _ => None
     }
+      .flatten
+      .toSeq
+  }
+
+  val assumeEasyFormat: (Option[String]) => Option[Ingredient] = {
+    case Some(line) =>
+      line.split(" ") match {
+        case Array(amount, unitString, "of", ingredient) if amount.matches(numberOrRatio.toString()) =>
+          println("of candidate")
+          buildKnownUnitIngredient(amount, unitString, ingredient)
+        case Array(amount, unitString, ingredient) if amount.matches(numberOrRatio.toString()) =>
+          buildKnownUnitIngredient(amount, unitString, ingredient)
+        case Array(amount, _*) =>
+          println("Generic")
+          None
+        case _ => None
+      }
+    case None => None
   }
 
   def buildKnownUnitIngredient(amountString: String, unitMaybe: String, name: String) = matchKnownUnit(unitMaybe) match {
@@ -81,7 +91,7 @@ object ParseIngredientStrategy {
   val ingredientWithNumericContentPattern = "([0-9/\\.]+) ([0-9/\\. ]+[ -]{1}[\\w]+\\.? [\\w]+) ([\\w\\s]+)".r
   val assumeIngredientContainsNumbers: (Option[String]) => Option[Ingredient] = {
     for {
-      line <- _
+      line: String <- _
       knownUnits = detectKnownUnits(line)
       if knownUnits.length >= 2
       qualifierUnit = knownUnits(0)
@@ -90,30 +100,26 @@ object ParseIngredientStrategy {
       qualifierQuantity <- qualifierQuantityMaybe
       firstNumMatch <- numberOrRatio.findFirstMatchIn(line)
       firstNumOverall <- getAmount(firstNumMatch.matched)
-      if (qualifierQuantity._2 != firstNumMatch.start)
+      if qualifierQuantity._2 != firstNumMatch.start
       qualifiedUnit = buildQualifiedUnit(qualifierQuantity._1, qualifierUnit._1, mainUnit._1)
       everythingAfterMainUnit = line.substring(mainUnit._3).trim
     } yield Ingredient(name = everythingAfterMainUnit, unit = Some(qualifiedUnit), amount = Some(firstNumOverall))
   }
 
   val assumeNoUnits: (Option[String]) => Option[Ingredient] = {
-    _ match {
-      case None => None
-      case Some(line) =>
-        numberOrRatio.findFirstMatchIn(line) match {
-          case Some(num) =>
-            println("nounits: matched: " + num.matched)
-            Some(Ingredient(amount = getAmount(num.matched), unit=None, name=line.substring(num.end).trim))
-          case _ => None
-        }
-    }
+    case None => None
+    case Some(line) =>
+      numberOrRatio.findFirstMatchIn(line) match {
+        case Some(num) =>
+          println("nounits: matched: " + num.matched)
+          Some(Ingredient(amount = getAmount(num.matched), unit = None, name = line.substring(num.end).trim))
+        case _ => None
+      }
   }
 
   val assumeItemNameOnly: (Option[String]) => Option[Ingredient] = {
-    _ match {
-      case None => None
-      case Some(line) => Some(Ingredient(name = line, amount = None, unit = None))
-    }
+    case None => None
+    case Some(line) => Some(Ingredient(name = line, amount = None, unit = None))
   }
 
   val assumeKnownUnit: (Option[String]) => Option[Ingredient] = {
@@ -123,7 +129,7 @@ object ParseIngredientStrategy {
       unitQualifierMaybe <- findLastNumberBefore(line, firstMatch._2)
       unitQualifier <- unitQualifierMaybe
       firstNumOverall <- numberOrRatio.findFirstMatchIn(line)
-      if (unitQualifier._2 == firstNumOverall.start)
+      if unitQualifier._2 == firstNumOverall.start
       everythingAfterUnit = line.substring(firstMatch._3).trim
     } yield Ingredient(name = everythingAfterUnit, amount = Some(unitQualifier._1), unit = Some(firstMatch._1))
   }
@@ -151,17 +157,6 @@ object ParseIngredientStrategy {
 
   }
 
-  val unitPatternRgx = "[\\w\\.]+".r
-  val detectKnownUnits: (String) => Seq[(Unit,Int,Int)] = {
-    unitPatternRgx.findAllMatchIn(_)
-      .map(m => (matchKnownUnit(m.matched),m.start, m.end))
-      .map{
-            case (Some(knownUnit),start, end) if knownUnit.known => Some((knownUnit,start,end))
-            case _ => None
-      }
-      .flatten
-      .toSeq
-  }
 
   def buildQualifiedUnit(qualifierQuantity: Double, qualifierUnit: Unit, mainUnit: Unit): Unit = {
     val compoundUnit = qualifierQuantity + " " + qualifierUnit.unit + " " + mainUnit.unit
