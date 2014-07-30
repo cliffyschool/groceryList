@@ -1,3 +1,6 @@
+package groceryList.parse
+
+import groceryList.model.{Ingredient, UnitOfMeasure}
 import org.specs2.matcher.DataTables
 import org.specs2.Specification
 
@@ -8,7 +11,7 @@ class ParseUnitsSpec extends Specification with DataTables{ def is =
   "tests for parsing ingredients"  ! e1
 
   val salt = "salt"
-  val parser = new Ingredients
+  val parser = new DefaultIngredientParser
 
   def e1 =
     "line"   | "expectedAmount" | "expectedUnit" | "expectedIngredient" |
@@ -32,7 +35,7 @@ class ParseUnitsSpec extends Specification with DataTables{ def is =
           amount = Some(expectedAmount),
           unit = expectedUnit match {
             case "" => None
-            case _ => Some(Unit(expectedUnit, true))
+            case _ => Some(UnitOfMeasure(expectedUnit, true))
           }))
       }
     }

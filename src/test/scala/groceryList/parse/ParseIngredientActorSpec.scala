@@ -1,4 +1,7 @@
+package groceryList.parse
 
+
+import groceryList.actors.{ParseIngredientActor, CoreActors, Core}
 import ParseIngredientActor.{NoIngredientParsed, IngredientParsed, ParseIngredient}
 import akka.testkit.{ImplicitSender, TestKit}
 import akka.actor.ActorSystem
@@ -13,7 +16,7 @@ with ImplicitSender
 with CoreActors
 with Core {
 
-  "parse actor" should {
+  "groceryList.parse actor" should {
 
     sequential
 

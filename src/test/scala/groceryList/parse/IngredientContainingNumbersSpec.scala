@@ -1,3 +1,6 @@
+package groceryList.parse
+
+import groceryList.model.{Ingredient, UnitOfMeasure}
 import org.specs2.mutable.Specification
 
 /**
@@ -26,8 +29,8 @@ class IngredientContainingNumbersSpec extends Specification {
           case Some(Ingredient(_, _, unit)) => unit
           case _ => None
         }
-      maybeUnit must beSome[Unit]
-      maybeUnit.get.unit must equalTo("10.5 ounce can")
+      maybeUnit must beSome[UnitOfMeasure]
+      maybeUnit.get.name must equalTo("10.5 ounce can")
     }
 
     "extract the first known unit (as decimal)" in {
@@ -37,8 +40,8 @@ class IngredientContainingNumbersSpec extends Specification {
           case Some(Ingredient(_, _, unit)) => unit
           case _ => None
         }
-      maybeUnit must beSome[Unit]
-      maybeUnit.get.unit must equalTo("10.5 ounce can")
+      maybeUnit must beSome[UnitOfMeasure]
+      maybeUnit.get.name must equalTo("10.5 ounce can")
     }
 
     "extract the first number as the quantity" in {

@@ -1,3 +1,6 @@
+package groceryList.parse
+
+import groceryList.model.{Ingredient, UnitOfMeasure}
 import org.specs2.mutable.Specification
 
 /**
@@ -9,7 +12,7 @@ class KnownUnitsSpec extends Specification {
     "cup", "tablespoon", "pinch", "pound", "teaspoon", "can", "stick", "ounce", "jar"
   )
 
-  def beAKnownUnit = beSome[Unit].which(u => u.known)
+  def beAKnownUnit = beSome[UnitOfMeasure].which(u => u.known)
 
   "known units strategy" should {
     "find all known units in a string" in {
@@ -26,17 +29,17 @@ class KnownUnitsSpec extends Specification {
 
     "use the first number as quantity" in {
       val u = ParseIngredientStrategy.assumeKnownUnit(Some("1 cup butter"))
-      u must beSome(Ingredient(amount=Some(1),unit=Some(Unit("cup", true)), name="butter"))
+      u must beSome(Ingredient(amount=Some(1),unit=Some(UnitOfMeasure("cup", true)), name="butter"))
     }
 
     "handle ratios as quantity" in {
       val u = ParseIngredientStrategy.assumeKnownUnit(Some("1 1/2 cups butter"))
-      u must beSome(Ingredient(amount=Some(1.5),unit=Some(Unit("cup", true)), name="butter"))
+      u must beSome(Ingredient(amount=Some(1.5),unit=Some(UnitOfMeasure("cup", true)), name="butter"))
     }
 
     "handle decimal values as quantity" in {
       val u = ParseIngredientStrategy.assumeKnownUnit(Some("1.53 cups butter"))
-      u must beSome(Ingredient(amount=Some(1.53),unit=Some(Unit("cup", true)), name="butter"))
+      u must beSome(Ingredient(amount=Some(1.53),unit=Some(UnitOfMeasure("cup", true)), name="butter"))
     }
 
     "return None if the amount qualifying the unit is not the first number" in {
@@ -46,12 +49,12 @@ class KnownUnitsSpec extends Specification {
 
     "ignore non-numbers between the first number and the first unit" in {
       val u = ParseIngredientStrategy.assumeKnownUnit(Some("4 tra lee, tra la cup butter"))
-      u must beSome(Ingredient(amount=Some(4),unit=Some(Unit("cup", true)), name="butter"))
+      u must beSome(Ingredient(amount=Some(4),unit=Some(UnitOfMeasure("cup", true)), name="butter"))
      }
 
     "use the first matched unit as the unit" in {
       val u = ParseIngredientStrategy.assumeKnownUnit(Some("1 cup tablespoon butter"))
-      u must beSome(Ingredient(amount=Some(1),unit=Some(Unit("cup", true)), name="tablespoon butter"))
+      u must beSome(Ingredient(amount=Some(1),unit=Some(UnitOfMeasure("cup", true)), name="tablespoon butter"))
     }
 
     "return None if no known unit is detected" in {
@@ -61,7 +64,7 @@ class KnownUnitsSpec extends Specification {
 
     "handle empty ingredient name" in {
       val u = ParseIngredientStrategy.assumeKnownUnit(Some("3 cups"))
-      u must beSome(Ingredient(name="", amount = Some(3), unit = Some(Unit("cup", true))))
+      u must beSome(Ingredient(name="", amount = Some(3), unit = Some(UnitOfMeasure("cup", true))))
     }
   }
 

@@ -1,10 +1,13 @@
+package groceryList.parse
+
 import scala.collection.mutable
+import groceryList.model.{Ingredient, UnitOfMeasure}
 
 /**
  * Created by U6017873 on 7/6/2014.
  *
  */
-class Ingredients {
+class DefaultIngredientParser extends IngredientParser {
 
 
   val strategies = Array("easy" -> ParseIngredientStrategy.assumeEasyFormat,
@@ -49,31 +52,14 @@ class Ingredients {
   }
 }
 
-case class Ingredient(name: String, amount: Option[Double], unit: Option[Unit])
+object DefaultIngredientParser {
+  val p = new DefaultIngredientParser()
 
-case class Unit(unit: String, known: Boolean)
-
-object Ingredients {
-  val i = new Ingredients()
-
-  def parse(line: String) = {
-    i.fromLine(line)
-  }
-
-  def main(args: Array[String]) {
-    println("Type an ingredient, or ok to build list")
-    var list = mutable.MutableList[Option[Ingredient]]()
-    val i = new Ingredients
-    do {
-      val line = readLine()
-      if ("ok" == line) {
-        println(list.size)
-        val l = i.makeList(list.toSeq.flatten, Seq())
-        l.foreach(println)
-        return
-      }
-      else
-        list += i.fromLine(line)
-    } while (true)
-  }
+  def parse(line: String) = p.fromLine(line)
 }
+
+
+
+
+
+

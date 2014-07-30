@@ -1,3 +1,5 @@
+package groceryList.parse
+
 import org.specs2.mutable.Specification
 
 /**

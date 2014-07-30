@@ -1,5 +1,8 @@
+package groceryList.parse
+
 import org.apache.commons.math.fraction.FractionFormat
 import scala.util.Try
+import groceryList.model.{UnitOfMeasure, Ingredient}
 
 /**
  * Created by cfreeman on 7/8/14.
@@ -41,21 +44,21 @@ object ParseIngredientStrategy {
     }
   }
 
-  def matchKnownUnit(unitOption: Option[String]): Option[Unit] = {
+  def matchKnownUnit(unitOption: Option[String]): Option[groceryList.model.UnitOfMeasure] = {
     unitOption match {
       case Some(unit) =>
         knownUnits.find(unit) match {
           case Some(known) => Some(known)
-          case None => Some(Unit(unit = unit, known = false))
+          case None => Some(UnitOfMeasure(name = unit, known = false))
         }
       case _ => None
     }
   }
 
-  def matchKnownUnit(unitOption: String): Option[Unit] = matchKnownUnit(unitOption match { case null => None case s: String => Some(s)})
+  def matchKnownUnit(unitOption: String): Option[groceryList.model.UnitOfMeasure] = matchKnownUnit(unitOption match { case null => None case s: String => Some(s)})
 
   val unitPatternRgx = "[\\w\\.]+".r
-  val detectKnownUnits: (String) => Seq[(Unit, Int, Int)] = {
+  val detectKnownUnits: (String) => Seq[(groceryList.model.UnitOfMeasure, Int, Int)] = {
     unitPatternRgx.findAllMatchIn(_)
       .map(m => (matchKnownUnit(m.matched), m.start, m.end))
       .map {
@@ -150,9 +153,9 @@ object ParseIngredientStrategy {
   }
 
 
-  def buildQualifiedUnit(qualifierQuantity: Double, qualifierUnit: Unit, mainUnit: Unit): Unit = {
-    val compoundUnit = qualifierQuantity + " " + qualifierUnit.unit + " " + mainUnit.unit
+  def buildQualifiedUnit(qualifierQuantity: Double, qualifierUnit: groceryList.model.UnitOfMeasure, mainUnit: groceryList.model.UnitOfMeasure): groceryList.model.UnitOfMeasure = {
+    val compoundUnit = qualifierQuantity + " " + qualifierUnit.name + " " + mainUnit.name
     println(compoundUnit)
-    Unit(known = false, unit = compoundUnit)
+    UnitOfMeasure(known = false, name = compoundUnit)
   }
 }

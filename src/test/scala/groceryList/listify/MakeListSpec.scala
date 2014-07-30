@@ -1,13 +1,16 @@
-import org.specs2.matcher.DataTables
+package groceryList.listify
+
+import groceryList.parse.DefaultIngredientParser
 import org.specs2.Specification
+import org.specs2.matcher.DataTables
 
 /**
   * Created by U6017873 on 7/7/2014.
   */
 class MakeListSpec extends Specification with DataTables{ def is =
-   "tests for making a list from ingredients"  ! e1
+   "tests for making a groceryList.list from ingredients"  ! e1
 
-   val combiner = new Ingredients
+   val combiner = new DefaultIngredientParser
 
    def e1 =
      "line1"   | "line2" | "line3" | "expectedListSize" |
