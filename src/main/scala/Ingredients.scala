@@ -14,9 +14,15 @@ class Ingredients {
                         "itemNameOnly" -> ParseIngredientStrategy.assumeItemNameOnly)
 
   def fromLine(line: String) : Option[Ingredient] = {
+    val strOpt = line match {
+      case s if s == null || s.length < 1 => None
+      case s => Some(s)
+    }
+    if (strOpt == None)
+      return None
 
     for (strategy <- strategies) {
-      val result = strategy._2(line match { case null => None case _ => Some(line)})
+      val result = strategy._2(Option(line))
       if (result.isDefined) {
         println(s"On line '$line', used ${strategy._1} strategy")
         return result
@@ -48,6 +54,12 @@ case class Ingredient(name: String, amount: Option[Double], unit: Option[Unit])
 case class Unit(unit: String, known: Boolean)
 
 object Ingredients {
+  val i = new Ingredients()
+
+  def parse(line: String) = {
+    i.fromLine(line)
+  }
+
   def main(args: Array[String]) {
     println("Type an ingredient, or ok to build list")
     var list = mutable.MutableList[Option[Ingredient]]()
