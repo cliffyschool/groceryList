@@ -1,4 +1,4 @@
-name := "ingredients"
+name := "gorcyerList"
 
 version := "1.0"
 
@@ -11,6 +11,7 @@ libraryDependencies ++= Seq(
   "org.specs2" %% "specs2" % "2.3.12" % "test",
   "com.typesafe.akka" %% "akka-actor" % akkaVersion
       exclude ("org.scala-lang" , "scala-library"),
+  "com.typesafe.akka" %% "akka-channels-experimental" % "2.2.3",
  "com.typesafe.akka" %% "akka-testkit" % akkaVersion % "test",
    "io.spray" % "spray-testkit" % sprayVersion % "test",
   "io.spray" % "spray-can" % sprayVersion,
