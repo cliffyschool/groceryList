@@ -12,8 +12,12 @@ import java.util.concurrent.TimeUnit
 trait CoreActors {
   this: Core =>
 
-  val parseSystem = ChannelExt(system).actorOf(new ParseIngredientActor() , "handler")
+  val parseActor = new ParseIngredientActor()
+  val parseSystem = ChannelExt(system).actorOf(parseActor, "handler")
+  val gatherSystem = ChannelExt(system).actorOf(new GatherIngredientsActor(parseActor), "gather")
 
   implicit val timeout = Timeout(5, TimeUnit.SECONDS)
 
 }
+
+

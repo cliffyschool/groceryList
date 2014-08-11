@@ -1,7 +1,7 @@
 package groceryList.parse
 
 
-import groceryList.actors.{ParseIngredientActor, CoreActors, Core}
+import groceryList.actors.{GatherIngredientsRequest, ParseIngredientActor, CoreActors, Core}
 import ParseIngredientActor.{NoIngredientParsed, IngredientParsed, ParseIngredient}
 import akka.testkit.{ImplicitSender, TestKit}
 import akka.actor.ActorSystem
@@ -20,10 +20,11 @@ with ImplicitSender
 with CoreActors
 with Core {
 
+  implicit val selfChannel: ChannelRef[(Any, Nothing) :+: TNil] = new ChannelRef(testActor)
+
   "groceryList.parse actor" should {
 
     sequential
-    implicit val selfChannel: ChannelRef[(Any, Nothing) :+: TNil] = new ChannelRef(testActor)
 
     "send a parsed ingredient message for a valid line" in {
         parseSystem <-!- ParseIngredient("1 cup butter")
@@ -33,6 +34,15 @@ with Core {
     "send a no-parsed-ingredient message for a blank line" in {
       parseSystem <-!- ParseIngredient("")
       expectMsgType[NoIngredientParsed] must not beNull
+    }
+  }
+
+  "gather actor" should {
+    sequential
+
+    "work" in {
+      gatherSystem <-!- GatherIngredientsRequest("this here")
+      expectMsgType[IngredientParsed] must not beNull
     }
   }
 }
