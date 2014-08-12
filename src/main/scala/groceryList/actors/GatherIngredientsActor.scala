@@ -21,10 +21,13 @@ class GatherIngredientsActor(target: => Actor
 
   channel[GatherIngredientsRequest] {
     case (request, sender) ⇒
-      ParseIngredient(request.fromText) -?-> targetRef -*-> (_.map{
-        case p:IngredientParsed => GatherIngredientsResponse(p.i.unit.get.name)
-        case n:NoIngredientParsed => GatherIngredientsResponse("nope")
-      }) -!-> sender
+      val lines = request.fromText.split("\n")
+      lines.map { line =>
+        ParseIngredient(line) -?-> targetRef -*-> (_.map {
+          case p: IngredientParsed => GatherIngredientsResponse(p.i.unit.get.name)
+          case n: NoIngredientParsed => GatherIngredientsResponse("nope")
+        }) -!-> sender
+      }
   }
 }
 
