@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit
 trait CoreActors {
   this: Core =>
 
-  val parseActor = new ParseIngredientActor()
+  def parseActor = new ParseIngredientActor()
   val parseSystem = ChannelExt(system).actorOf(parseActor, "handler")
   val gatherSystem = ChannelExt(system).actorOf(new GatherIngredientsActor(parseActor), "gather")
 

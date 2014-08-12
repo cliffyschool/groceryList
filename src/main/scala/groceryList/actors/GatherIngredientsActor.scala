@@ -21,8 +21,8 @@ class GatherIngredientsActor(target: => Actor
 
   channel[GatherIngredientsRequest] {
     case (request, sender) ⇒
-      ParseIngredient("hello") -?-> targetRef -*-> (_.map{
-        case p:IngredientParsed => GatherIngredientsResponse(p.i.name)
+      ParseIngredient(request.fromText) -?-> targetRef -*-> (_.map{
+        case p:IngredientParsed => GatherIngredientsResponse(p.i.unit.get.name)
         case n:NoIngredientParsed => GatherIngredientsResponse("nope")
       }) -!-> sender
   }
