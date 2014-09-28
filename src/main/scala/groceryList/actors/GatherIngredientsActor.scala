@@ -1,34 +1,33 @@
 package groceryList.actors
 
-import akka.actor.Actor
-import akka.channels._
+import akka.actor.{Props, Actor}
 import groceryList.actors.ParseIngredientActor.{NoIngredientParsed, IngredientParsed, ParseIngredient}
 import akka.util.Timeout
+import akka.pattern.{ ask, pipe }
 import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
  * Created by cfreeman on 8/10/14.
  */
-class GatherIngredientsActor(target: => Actor
-  with Channels[TNil, (ParseIngredient, ParseResponse) :+: TNil])
-  extends Actor
-  with Channels[TNil, (GatherIngredientsRequest, GatherIngredientsResponse) :+: TNil] {
+class GatherIngredientsActor extends Actor {
 
   implicit val timeout = Timeout(5.seconds)
-  import context.dispatcher
 
-  lazy val targetRef = createChild(target, "parseSystem")
+  val parserRef = context.actorOf(Props[ParseIngredientActor]) // will be destroyed and re-created upon restart by default
 
-  channel[GatherIngredientsRequest] {
-    case (request, sender) ⇒
-      val lines = request.fromText.split("\n")
-      lines.map { line =>
-        ParseIngredient(line) -?-> targetRef -*-> (_.map {
-          case p: IngredientParsed => GatherIngredientsResponse(p.i.unit.get.name)
-          case n: NoIngredientParsed => GatherIngredientsResponse("nope")
-        }) -!-> sender
-      }
-  }
+  def receive = {
+      case GatherIngredientsRequest(fromText) ⇒
+        val lines = fromText.split("\n")
+        lines.map { line =>
+          val msg =
+          (parserRef ? ParseIngredient(line)).map {
+            case p: IngredientParsed => GatherIngredientsResponse(p.i.unit.get.name)
+            case n: NoIngredientParsed => GatherIngredientsResponse("nope")
+          }
+          msg pipeTo sender
+        }
+    }
 }
 
 case class GatherIngredientsRequest(fromText: String)
