@@ -4,6 +4,7 @@ import akka.actor.{Props, Actor}
 import groceryList.actors.ParseIngredientActor.{NoIngredientParsed, IngredientParsed, ParseIngredient}
 import akka.util.Timeout
 import akka.pattern.{ ask, pipe }
+import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -19,14 +20,14 @@ class GatherIngredientsActor extends Actor {
   def receive = {
       case GatherIngredientsRequest(fromText) ⇒
         val lines = fromText.split("\n")
+        val msgs =
         lines.map { line =>
-          val msg =
           (parserRef ? ParseIngredient(line)).map {
             case p: IngredientParsed => GatherIngredientsResponse(p.i.unit.get.name)
             case n: NoIngredientParsed => GatherIngredientsResponse("nope")
           }
-          msg pipeTo sender
         }
+        msgs.map(m => m pipeTo sender)
     }
 }
 
