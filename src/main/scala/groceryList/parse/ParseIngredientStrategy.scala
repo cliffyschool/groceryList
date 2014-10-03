@@ -1,8 +1,12 @@
 package groceryList.parse
 
+import groceryList.parse.util.StringUtils
 import org.apache.commons.math.fraction.FractionFormat
 import scala.util.Try
+import StringUtils._
 import groceryList.model.{UnitOfMeasure, Ingredient}
+
+import scala.util.matching.Regex
 
 /**
  * Created by cfreeman on 7/8/14.
@@ -19,111 +23,99 @@ object ParseIngredientStrategy {
     "cup" -> Seq("cups", "c."),
     "tablespoon" -> Seq("tbsp", "tbsp.", "tablespoons"),
     "teaspoon" -> Seq("tsp", "tsp.", "teaspoons"),
-    "ounce" ->  Seq("oz", "oz.", "ounces"),
-    "pinch" ->  Seq("pinches"),
-    "pound" ->  Seq("pounds", "lbs", "lbs.", "lb."),
-    "can" ->  Seq("cans"),
-    "stick" ->  Seq("sticks"),
-    "jar" ->  Seq("jars")
+    "ounce" -> Seq("oz", "oz.", "ounces"),
+    "pinch" -> Seq("pinches"),
+    "pound" -> Seq("pounds", "lbs", "lbs.", "lb."),
+    "can" -> Seq("cans"),
+    "stick" -> Seq("sticks"),
+    "jar" -> Seq("jars")
   ))
 
-  val fractionFormat = new FractionFormat()
-
-
-  def getAmount:(String) => Option[Double] = {
+  def getAmount: (String) => Option[Double] = {
+    case numAsStr if numAsStr.isNullOrEmpty => None
     case "a" => Some(1)
-    case s: String if s.contains("/") =>
-      val split = s.split("\\s+").map(_.trim).filterNot(_.isEmpty)
-      val ratio = Try[Double](fractionFormat.parse(split(split.length - 1)).doubleValue()).getOrElse(-1.0)
-      val wholeNumber = if (split.length > 1) Integer.parseInt(split(split.length - 2)) else 0
-      Some(wholeNumber + ratio)
-    case s: String if s.length > 0 => Some(s.toDouble)
+    case s: String if s.couldBeRatio => s.asRatio
+    case s: String => s.toDoubleOpt
     case _ => None
   }
 
-  def matchKnownUnit:(String) => Option[UnitOfMeasure] = {
-    case unitName:String if unitName != null && !unitName.isEmpty =>
-      Some(knownUnits.find(unitName))
+  def matchKnownUnit: (String) => Option[UnitOfMeasure] = {
+    case unitName: String if unitName != null && !unitName.isEmpty =>
+      knownUnits.find(unitName) match {
+        case unit if unit.known => Some(unit)
+        case _ => None
+      }
     case _ => None
   }
+
+  case class Match[T](matched: T, startOfMatch: Int, endOfMatch: Int)
 
   val unitPatternRgx = "[\\w\\.]+".r
-  val detectKnownUnits: (String) => Seq[(groceryList.model.UnitOfMeasure, Int, Int)] = {
-    unitPatternRgx.findAllMatchIn(_)
-      .map(m => (matchKnownUnit(m.matched), m.start, m.end))
-      .map {
-      case (Some(knownUnit), start, end) if knownUnit.known => Some((knownUnit, start, end))
-      case _ => None
+
+  def detectKnownUnits(str:String) : Seq[Match[UnitOfMeasure]] = {
+    unitPatternRgx.findAllMatchIn(str)
+      .map { m =>
+      matchKnownUnit(m.matched) match {
+        case Some(knownUnit) => Some(Match(knownUnit, m.start, m.end))
+        case _ => None
+      }
     }
-      .flatten
-      .toSeq
+    .flatten
+    .toSeq
   }
 
-  val assumeEasyFormat: (Option[String]) => Option[Ingredient] = {
-    case Some(line) =>
+  val assumeEasyFormat: (String) => Option[Ingredient] = {
+    case s: String if s.isNullOrEmpty => None
+    case line: String =>
       line.split(" ") match {
         case Array(amount, unitString, "of", ingredient) if amount.matches(numberOrRatio.toString()) =>
-          println("of candidate")
           buildKnownUnitIngredient(amount, unitString, ingredient)
         case Array(amount, unitString, ingredient) if amount.matches(numberOrRatio.toString()) =>
           buildKnownUnitIngredient(amount, unitString, ingredient)
-        case Array(amount, _*) =>
-          println("Generic")
-          None
         case _ => None
       }
-    case None => None
   }
 
-  def buildKnownUnitIngredient(amountString: String, unitMaybe: String, name: String) = matchKnownUnit(unitMaybe) match {
-    case Some(unit) if unit.known =>
-      Some(Ingredient(name, getAmount(amountString), Some(unit)))
-    case _ => None
-  }
+  def buildKnownUnitIngredient(amountString: String, unitMaybe: String, name: String) =
+    matchKnownUnit(unitMaybe)
+      .flatMap(u => Some(Ingredient(u.name, getAmount(amountString), Some(u))))
 
-  val assumeIngredientContainsNumbers: (Option[String]) => Option[Ingredient] = {
+
+  def assumeIngredientContainsNumbers (line:String) : Option[Ingredient] = {
     for {
-      line: String <- _
-      knownUnits = detectKnownUnits(line)
+      knownUnits <- Option(detectKnownUnits(line))
       if knownUnits.length >= 2
       qualifierUnit = knownUnits(0)
       mainUnit = knownUnits(1)
-      qualifierQuantityMaybe <- findLastNumberBefore(line, qualifierUnit._2)
-      qualifierQuantity <- qualifierQuantityMaybe
+      qualifierQuantity:Match[Double] <- findLastNumberBefore(line, qualifierUnit.startOfMatch)
       firstNumMatch <- numberOrRatio.findFirstMatchIn(line)
       firstNumOverall <- getAmount(firstNumMatch.matched)
-      if qualifierQuantity._2 != firstNumMatch.start
-      qualifiedUnit = buildQualifiedUnit(qualifierQuantity._1, qualifierUnit._1, mainUnit._1)
-      everythingAfterMainUnit = line.substring(mainUnit._3).trim
+      if qualifierQuantity.startOfMatch != firstNumMatch.start
+      qualifiedUnit = buildQualifiedUnit(qualifierQuantity.matched, qualifierUnit.matched, mainUnit.matched)
+      everythingAfterMainUnit = line.substring(mainUnit.endOfMatch).trim
     } yield Ingredient(name = everythingAfterMainUnit, unit = Some(qualifiedUnit), amount = Some(firstNumOverall))
   }
 
-  val assumeNoUnits: (Option[String]) => Option[Ingredient] = {
-    case None => None
-    case Some(line) =>
-      numberOrRatio.findFirstMatchIn(line) match {
-        case Some(num) =>
-          println("nounits: matched: " + num.matched)
-          Some(Ingredient(amount = getAmount(num.matched), unit = None, name = line.substring(num.end).trim))
-        case _ => None
-      }
+  val assumeNoUnits: (String) => Option[Ingredient] = {
+    case s:String if s.isNullOrEmpty => None
+    case line:String =>
+      numberOrRatio.findFirstMatchIn(line)
+        .flatMap(rgxMatch =>Some(Ingredient(line.substring(rgxMatch.end).trim,getAmount(rgxMatch.matched),None)))
   }
 
-  val assumeItemNameOnly: (Option[String]) => Option[Ingredient] = {
-    case None => None
-    case Some(line) => Some(Ingredient(name = line, amount = None, unit = None))
+  val assumeItemNameOnly: (String) => Option[Ingredient] = {
+    case s:String if s.isNullOrEmpty => None
+    case line:String => Some(Ingredient(line, None, None))
   }
 
-  val assumeKnownUnit: (Option[String]) => Option[Ingredient] = {
+  def assumeKnownUnit(line: String) : Option[Ingredient] = {
     for {
-      line <- _
       firstMatch <- detectKnownUnits(line).headOption
-      unitQualifierMaybe <- findLastNumberBefore(line, firstMatch._2)
-      unitQualifier <- unitQualifierMaybe
+      unitQualifier <- findLastNumberBefore(line, firstMatch.startOfMatch)
       firstNumOverall <- numberOrRatio.findFirstMatchIn(line)
-      if unitQualifier._2 == firstNumOverall.start
-      everythingAfterUnit = line.substring(firstMatch._3).trim
-    } yield Ingredient(name = everythingAfterUnit, amount = Some(unitQualifier._1), unit = Some(firstMatch._1))
+      if unitQualifier.startOfMatch == firstNumOverall.start
+      everythingAfterUnit = line.substring(firstMatch.endOfMatch).trim
+    } yield Ingredient(name = everythingAfterUnit, amount = Some(unitQualifier.matched), unit = Some(firstMatch.matched))
   }
 
   def findLastNumberBefore(line: String, pos: Int) = {
@@ -138,7 +130,7 @@ object ParseIngredientStrategy {
     for {
       lastNumber <- lastNumberMaybe
       amount <- getAmount(lastNumber.matched)
-    } yield Some((amount, lastNumber.start, lastNumber.end))
+    } yield Match[Double](amount, lastNumber.start, lastNumber.end)
 
   }
 

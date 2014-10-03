@@ -10,20 +10,20 @@ class IngredientContainingNumbersSpec extends Specification {
 
   "ingredientContainingNumbers strategy " should {
 
-    def strategy = ParseIngredientStrategy.assumeIngredientContainsNumbers
+    def strategy: (String) => Option[Ingredient] = ParseIngredientStrategy.assumeIngredientContainsNumbers
 
     "return None if no known units are found" in {
-      val i = strategy("3 4-ab. chicken breasts".toOption)
+      val i = strategy("3 4-ab. chicken breasts")
       i must beNone
     }
 
     "return None if only 1 known unit is found" in {
-      val i = strategy("6 4 oz. pork chops".toOption)
+      val i = strategy("6 4 oz. pork chops")
       i must beNone
     }
 
     "extract the first known unit" in {
-      val i = strategy("3 10 1/2 oz cans diced tomatoes".toOption)
+      val i = strategy("3 10 1/2 oz cans diced tomatoes")
       val maybeUnit =
         i match {
           case Some(Ingredient(_, _, unit)) => unit
@@ -34,7 +34,7 @@ class IngredientContainingNumbersSpec extends Specification {
     }
 
     "extract the first known unit (as decimal)" in {
-      val i = strategy("3 10.5 oz. cans diced tomatoes".toOption)
+      val i = strategy("3 10.5 oz. cans diced tomatoes")
       val maybeUnit =
         i match {
           case Some(Ingredient(_, _, unit)) => unit
@@ -45,7 +45,7 @@ class IngredientContainingNumbersSpec extends Specification {
     }
 
     "extract the first number as the quantity" in {
-      val i = strategy("3 10 1/2 oz cans diced tomatoes".toOption)
+      val i = strategy("3 10 1/2 oz cans diced tomatoes")
       val quantity = i match {
         case Some(Ingredient(_, Some(q), _)) => q
         case _ => -1
@@ -54,7 +54,7 @@ class IngredientContainingNumbersSpec extends Specification {
     }
 
     "extract the ingredient name" in {
-      val i = strategy("3 10 1/2 oz cans diced tomatoes".toOption)
+      val i = strategy("3 10 1/2 oz cans diced tomatoes")
       val name = i match {
         case Some(Ingredient(name, _, _)) => name
         case _ => ""

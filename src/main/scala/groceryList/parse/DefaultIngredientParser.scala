@@ -9,12 +9,13 @@ import groceryList.model.{Ingredient, UnitOfMeasure}
  */
 class DefaultIngredientParser extends IngredientParser {
 
-
-  val strategies = Array("easy" -> ParseIngredientStrategy.assumeEasyFormat,
-                        "ingredientWithNumbers" -> ParseIngredientStrategy.assumeIngredientContainsNumbers,
-                        "knownUnit" -> ParseIngredientStrategy.assumeKnownUnit,
-                        "noUnits" -> ParseIngredientStrategy.assumeNoUnits,
-                        "itemNameOnly" -> ParseIngredientStrategy.assumeItemNameOnly)
+  val strategies = Map[String, (String) => Option[Ingredient]](
+    "easy" -> ParseIngredientStrategy.assumeEasyFormat,
+    "ingredientWithNumbers" -> ParseIngredientStrategy.assumeIngredientContainsNumbers,
+    "knownUnit" -> ParseIngredientStrategy.assumeKnownUnit,
+    "noUnits" -> ParseIngredientStrategy.assumeNoUnits,
+    "itemNameOnly" -> ParseIngredientStrategy.assumeItemNameOnly
+  )
 
   def fromLine(line: String) : Option[Ingredient] = {
     val strOpt = line match {
@@ -25,7 +26,7 @@ class DefaultIngredientParser extends IngredientParser {
       return None
 
     for (strategy <- strategies) {
-      val result = strategy._2(Option(line))
+      val result = strategy._2(line)
       if (result.isDefined) {
         return result
       }
