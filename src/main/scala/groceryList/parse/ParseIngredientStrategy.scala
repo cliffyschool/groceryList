@@ -15,47 +15,40 @@ import groceryList.model.{UnitOfMeasure, Ingredient}
 object ParseIngredientStrategy {
 
   val numberOrRatio = "(^a|(\\d+\\s)?(\\d+)/(\\d+)|\\d*(\\.\\d+)?)".r
-  val knownUnits = KnownUnits(Seq(
-    ("cup", Seq("cups", "c.")),
-    ("tablespoon", Seq("tbsp", "tbsp.", "tablespoons")),
-    ("teaspoon", Seq("tsp", "tsp.", "teaspoons")),
-    ("ounce", Seq("oz", "oz.", "ounces")),
-    ("pinch", Seq("pinches")),
-    ("pound", Seq("pounds", "lbs", "lbs.", "lb.")),
-    ("can", Seq("cans")),
-    ("stick", Seq("sticks")),
-    ("jar", Seq("jars"))
+  val knownUnits = KnownUnits(Map(
+    "cup" -> Seq("cups", "c."),
+    "tablespoon" -> Seq("tbsp", "tbsp.", "tablespoons"),
+    "teaspoon" -> Seq("tsp", "tsp.", "teaspoons"),
+    "ounce" ->  Seq("oz", "oz.", "ounces"),
+    "pinch" ->  Seq("pinches"),
+    "pound" ->  Seq("pounds", "lbs", "lbs.", "lb."),
+    "can" ->  Seq("cans"),
+    "stick" ->  Seq("sticks"),
+    "jar" ->  Seq("jars")
   ))
 
   val fractionFormat = new FractionFormat()
 
 
-  def getAmount(amount: String): Option[Double] = {
-
-    amount match {
-      case "a" => Some(1)
-      case s: String if s.contains("/") =>
-        val split = s.split("\\s+").map(_.trim).filter(_.length > 0)
-        val ratio = Try[Double](fractionFormat.parse(split(split.length - 1)).doubleValue()).getOrElse(-1.0)
-        val wholeNumber = if (split.length > 1) Integer.parseInt(split(split.length - 2)) else 0
-        Some(wholeNumber + ratio)
-      case s: String if s.length > 0 => Some(s.toDouble)
-      case _ => None
-    }
+  def getAmount:(String) => Option[Double] = {
+    case "a" => Some(1)
+    case s: String if s.contains("/") =>
+      val split = s.split("\\s+").map(_.trim).filterNot(_.isEmpty)
+      val ratio = Try[Double](fractionFormat.parse(split(split.length - 1)).doubleValue()).getOrElse(-1.0)
+      val wholeNumber = if (split.length > 1) Integer.parseInt(split(split.length - 2)) else 0
+      Some(wholeNumber + ratio)
+    case s: String if s.length > 0 => Some(s.toDouble)
+    case _ => None
   }
 
-  def matchKnownUnit(unitOption: Option[String]): Option[groceryList.model.UnitOfMeasure] = {
-    unitOption match {
-      case Some(unit) =>
-        knownUnits.find(unit) match {
-          case Some(known) => Some(known)
-          case None => Some(UnitOfMeasure(name = unit, known = false))
-        }
-      case _ => None
-    }
+  def matchKnownUnit:(String) => Option[UnitOfMeasure] = {
+    case unitName:String if unitName != null && !unitName.isEmpty =>
+      knownUnits.find(unitName) match {
+        case None => Some(UnitOfMeasure(name = unitName, known = false))
+        case o:Option[UnitOfMeasure] => o
+      }
+    case _ => None
   }
-
-  def matchKnownUnit(unitOption: String): Option[groceryList.model.UnitOfMeasure] = matchKnownUnit(unitOption match { case null => None case s: String => Some(s)})
 
   val unitPatternRgx = "[\\w\\.]+".r
   val detectKnownUnits: (String) => Seq[(groceryList.model.UnitOfMeasure, Int, Int)] = {

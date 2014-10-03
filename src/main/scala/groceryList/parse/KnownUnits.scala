@@ -9,10 +9,15 @@ case class KnownUnits(unitsWithAbbreviations: Map[String, groceryList.model.Unit
   def find(str: String): Option[groceryList.model.UnitOfMeasure] = unitsWithAbbreviations.get(str)
 }
 
+
 object KnownUnits {
-  def apply(unitsWithAbbreviations: Seq[(String, Seq[String])]): KnownUnits = {
+
+  case class AbbrevList(abbrevs: Map[String,Seq[String]])
+  implicit def al(list: Map[String,Seq[String]]) = AbbrevList(list)
+
+  def apply(unitsWithAbbreviations: AbbrevList): KnownUnits = {
     val m =
-      unitsWithAbbreviations
+      unitsWithAbbreviations.abbrevs
         .map(kv => (UnitOfMeasure(kv._1, true), kv._2.+:(kv._1)))
         .map(kv => kv._2.map(abbrev => (abbrev, kv._1)))
         .flatten
