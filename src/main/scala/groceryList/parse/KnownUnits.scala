@@ -6,7 +6,8 @@ import groceryList.model.UnitOfMeasure
  * Created by U6017873 on 7/14/2014.
  */
 case class KnownUnits(unitsWithAbbreviations: Map[String, groceryList.model.UnitOfMeasure]) {
-  def find(str: String): Option[groceryList.model.UnitOfMeasure] = unitsWithAbbreviations.get(str)
+  def find(name: String) =
+    unitsWithAbbreviations.get(name).getOrElse(UnitOfMeasure(name, false))
 }
 
 

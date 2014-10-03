@@ -43,10 +43,7 @@ object ParseIngredientStrategy {
 
   def matchKnownUnit:(String) => Option[UnitOfMeasure] = {
     case unitName:String if unitName != null && !unitName.isEmpty =>
-      knownUnits.find(unitName) match {
-        case None => Some(UnitOfMeasure(name = unitName, known = false))
-        case o:Option[UnitOfMeasure] => o
-      }
+      Some(knownUnits.find(unitName))
     case _ => None
   }
 
