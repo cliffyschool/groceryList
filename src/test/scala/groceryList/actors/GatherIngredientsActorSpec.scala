@@ -25,11 +25,11 @@ with Core {
   }
 
   "Given several valid ingredient lines, the gatherIngredients actor" should {
-    gatherActor ? GatherIngredientsRequest("1 cups butter\n2 tbsp. sugar")
+    gatherActor ! GatherIngredientsRequest("1 cups butter\n2 tbsp. sugar")
 
     "send a message for each line" in {
-      val msgs = expectMsgAllClassOf(classOf[GatherIngredientsResponse])
-      msgs.size must equalTo(2)
+      expectMsgAllOf(GatherIngredientsResponse("cup"), GatherIngredientsResponse("tablespoon")) must haveSize(2)
+
     }
   }
 }

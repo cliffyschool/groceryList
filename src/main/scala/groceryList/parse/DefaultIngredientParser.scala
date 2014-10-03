@@ -27,7 +27,6 @@ class DefaultIngredientParser extends IngredientParser {
     for (strategy <- strategies) {
       val result = strategy._2(Option(line))
       if (result.isDefined) {
-        println(s"On line '$line', used ${strategy._1} strategy")
         return result
       }
     }

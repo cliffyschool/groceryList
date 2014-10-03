@@ -27,7 +27,7 @@ class GatherIngredientsActor extends Actor {
             case n: NoIngredientParsed => GatherIngredientsResponse("nope")
           }
         }
-        msgs.map(m => m pipeTo sender)
+        msgs.map(futureResponse => futureResponse pipeTo sender)
     }
 }
 
