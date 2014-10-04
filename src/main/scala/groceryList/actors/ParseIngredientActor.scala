@@ -8,11 +8,11 @@ import groceryList.parse.{IngredientParser, DefaultIngredientParser}
 /**
  * Created by cfreeman on 7/29/14.
  */
-class ParseIngredientActor extends Actor
+class ParseIngredientActor(parser: IngredientParser) extends Actor
 {
   def receive = {
     case (ParseIngredient(line)) =>
-      val i = DefaultIngredientParser.parse(line) match {
+      val i = parser.fromLine(line) match {
         case None => NoIngredientParsed(line)
         case Some(i) => IngredientParsed(i)
       }

@@ -1,5 +1,6 @@
 package groceryList.parse
 
+import groceryList.actors.Core
 import groceryList.model.{KnownUnitOfMeasure, UnknownUnitOfMeasure, Ingredient, UnitOfMeasure}
 import org.specs2.matcher.DataTables
 import org.specs2.Specification
@@ -7,10 +8,8 @@ import org.specs2.Specification
 /**
  * Created by U6017873 on 7/7/2014.
  */
-class ParseAmountsSpec extends Specification with DataTables{ def is =
+class ParseAmountsSpec extends Specification with DataTables with StrategyComponent { def is =
   "tests for parsing ingredients"  ! e1
-
-  val parser = new DefaultIngredientParser
 
   def e1 =
     "line" | "expectedAmount" | "expectedUnit" | "unitIsKnown" | "expectedIngredient" |

@@ -3,6 +3,7 @@ package groceryList.actors
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit}
 import groceryList.actors.ParseIngredientActor.{IngredientParsed, NoIngredientParsed, ParseIngredient}
+import groceryList.parse.StrategyComponent
 import org.specs2.mutable.SpecificationLike
 import akka.pattern.{ ask, pipe }
 
@@ -13,7 +14,9 @@ class ParseIngredientActorSpec  extends TestKit(ActorSystem())
 with SpecificationLike
 with ImplicitSender
 with CoreActors
-with Core {
+with Core
+with StrategyComponent
+{
 
 
   "Given a parseable line, the parse actor" should {

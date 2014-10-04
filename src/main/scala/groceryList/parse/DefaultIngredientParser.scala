@@ -7,15 +7,7 @@ import groceryList.model.{Ingredient, UnitOfMeasure}
  * Created by U6017873 on 7/6/2014.
  *
  */
-class DefaultIngredientParser extends IngredientParser {
-
-  val strategies = Array[(String, (String) => Option[Ingredient])](
-    "easy" -> ParseIngredientStrategy.assumeEasyFormat,
-    "ingredientWithNumbers" -> ParseIngredientStrategy.assumeIngredientContainsNumbers,
-    "knownUnit" -> ParseIngredientStrategy.assumeKnownUnit,
-    "noUnits" -> ParseIngredientStrategy.assumeNoUnits,
-    "itemNameOnly" -> ParseIngredientStrategy.assumeItemNameOnly
-  )
+case class DefaultIngredientParser(strategies: Array[Strategy]) extends IngredientParser {
 
   def fromLine(line: String) : Option[Ingredient] = {
     val strOpt = line match {
@@ -51,13 +43,6 @@ class DefaultIngredientParser extends IngredientParser {
     }
   }
 }
-
-object DefaultIngredientParser {
-  val p = new DefaultIngredientParser()
-
-  def parse(line: String) = p.fromLine(line)
-}
-
 
 
 

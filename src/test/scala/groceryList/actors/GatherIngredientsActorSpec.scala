@@ -2,6 +2,7 @@ package groceryList.actors
 
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit}
+import groceryList.parse.StrategyComponent
 import org.specs2.mutable.SpecificationLike
 import akka.pattern.{ ask, pipe }
 import scala.concurrent.duration.FiniteDuration
@@ -13,7 +14,9 @@ class GatherIngredientsActorSpec  extends TestKit(ActorSystem())
 with SpecificationLike
 with ImplicitSender
 with CoreActors
-with Core {
+with Core
+with StrategyComponent
+{
 
   "Given a single valid ingredient line, the gatherIngredients actor" should {
     gatherActor ! GatherIngredientsRequest("1 cups butter")

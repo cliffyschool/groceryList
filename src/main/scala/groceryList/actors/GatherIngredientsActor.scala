@@ -1,6 +1,6 @@
 package groceryList.actors
 
-import akka.actor.{Props, Actor}
+import akka.actor.{ActorRef, Props, Actor}
 import groceryList.actors.ParseIngredientActor.{NoIngredientParsed, IngredientParsed, ParseIngredient}
 import akka.util.Timeout
 import akka.pattern.{ ask, pipe }
@@ -11,11 +11,9 @@ import scala.concurrent.ExecutionContext.Implicits.global
 /**
  * Created by cfreeman on 8/10/14.
  */
-class GatherIngredientsActor extends Actor {
+class GatherIngredientsActor(parserRef: ActorRef) extends Actor {
 
   implicit val timeout = Timeout(5.seconds)
-
-  val parserRef = context.actorOf(Props[ParseIngredientActor]) // will be destroyed and re-created upon restart by default
 
   def receive = {
       case GatherIngredientsRequest(fromText) ⇒
