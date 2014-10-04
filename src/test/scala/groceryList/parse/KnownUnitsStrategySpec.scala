@@ -8,24 +8,9 @@ import org.specs2.mutable.Specification
  */
 class KnownUnitsStrategySpec extends Specification {
 
-  val knownUnits = Seq(
-    "cup", "tablespoon", "pinch", "pound", "teaspoon", "can", "stick", "ounce", "jar"
-  )
-
   def beAKnownUnit = beSome[KnownUnitOfMeasure]
 
   "known units strategy" should {
-    "find all known units in a string" in {
-      val aLine = "cup cups hello hi tablespoons hey teaspoons ounce blah blee"
-      ParseIngredientStrategy.detectKnownUnits(aLine) must haveSize(5)
-    }
-
-    "match all known units" in {
-      knownUnits.map { uStr =>
-        val u = ParseIngredientStrategy.matchKnownUnit(uStr)
-        u must beAKnownUnit
-      }
-    }
 
     "use the first number as quantity" in {
       val u = ParseIngredientStrategy.assumeKnownUnit("1 cup butter")

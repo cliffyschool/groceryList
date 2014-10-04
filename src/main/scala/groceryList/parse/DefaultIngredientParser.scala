@@ -2,28 +2,18 @@ package groceryList.parse
 
 import scala.collection.mutable
 import groceryList.model.{Ingredient, UnitOfMeasure}
-
+import groceryList.parse.util.StringUtils._
 /**
  * Created by U6017873 on 7/6/2014.
  *
  */
 case class DefaultIngredientParser(strategies: Array[Strategy]) extends IngredientParser {
 
-  def fromLine(line: String) : Option[Ingredient] = {
-    val strOpt = line match {
-      case s if s == null || s.length < 1 => None
-      case s => Some(s)
-    }
-    if (strOpt == None)
-      return None
+  def fromLine: (String) => Option[Ingredient] = {
 
-    for (strategy <- strategies) {
-      val result = strategy._2(line)
-      if (result.isDefined) {
-        return result
-      }
-    }
-    None
+    case line:String if line.isNullOrEmpty => None
+    case line:String =>
+      strategies.toStream.flatMap (s => s._2(line)).headOption
   }
 
   def makeList(l1: Seq[Ingredient], l2: Seq[Ingredient]) : Seq[Ingredient] = {

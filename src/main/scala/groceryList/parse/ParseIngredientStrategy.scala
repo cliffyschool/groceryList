@@ -18,7 +18,6 @@ import scala.util.matching.Regex
  */
 object ParseIngredientStrategy {
 
-
   val knownUnits = KnownUnitsFinder(Map(
     "cup" -> Seq("cups", "c."),
     "tablespoon" -> Seq("tbsp", "tbsp.", "tablespoons"),
@@ -39,19 +38,13 @@ object ParseIngredientStrategy {
     case _ => None
   }
 
-  def matchKnownUnit: (String) => Option[KnownUnitOfMeasure] = {
-    case s if !s.isNullOrEmpty =>
-      knownUnits.get(s)
-    case _ => None
-  }
-
   case class Match[T](matched: T, startOfMatch: Int, endOfMatch: Int)
 
   val unitPatternRgx = "[\\w\\.]+".r
 
   def detectKnownUnits(str:String) = {
     unitPatternRgx.findAllMatchIn(str)
-      .map(m => matchKnownUnit(m.matched)
+      .map(m => knownUnits.matchKnownUnit(m.matched)
       .flatMap(knownUnit => Some(Match(knownUnit, m.start, m.end))))
     .flatten
     .toSeq
@@ -70,7 +63,8 @@ object ParseIngredientStrategy {
   }
 
   def buildIngredient(ingredient: String, amount:String,unit:String) = {
-    matchKnownUnit(unit).flatMap(knownUnit => Some(Ingredient(ingredient, parseAmount(amount), Some(knownUnit))))
+    knownUnits.matchKnownUnit(unit)
+      .flatMap(knownUnit => Some(Ingredient(ingredient, parseAmount(amount), Some(knownUnit))))
   }
 
   def assumeIngredientContainsNumbers (line:String) : Option[Ingredient] = {
@@ -87,16 +81,14 @@ object ParseIngredientStrategy {
     } yield Ingredient(name = everythingAfterMainUnit, unit = Some(qualifiedUnit), amount = Some(firstNumOverall))
   }
 
-  val assumeNoUnits: (String) => Option[Ingredient] = {
-    case s:String if s.isNullOrEmpty => None
-    case line:String =>
+  def assumeNoUnits(line : String): Option[Ingredient] = {
       numberOrRatioRegex.findFirstMatchIn(line)
         .flatMap(rgxMatch =>Some(Ingredient(  line.substring(rgxMatch.end).trim,
                                               parseAmount(rgxMatch.matched),
                                               None)))
   }
 
-  val assumeItemNameOnly: (String) => Option[Ingredient] = {
+  def assumeItemNameOnly: (String) => Option[Ingredient] = {
     case s:String if s.isNullOrEmpty => None
     case line:String => Some(Ingredient(line, None, None))
   }

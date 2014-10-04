@@ -13,7 +13,7 @@ class KnownUnitsFinderSpec extends Specification {
 
   "Given a known unit string, finder" should {
 
-    val unit = known.get(unitString)
+    val unit = known.matchKnownUnit(unitString)
 
     "return something..." in {
       unit must beSome[KnownUnitOfMeasure]
@@ -29,7 +29,7 @@ class KnownUnitsFinderSpec extends Specification {
   }
 
   "Given an abbreviation for a known unit, the finder" should {
-    val unit = known.get("fath")
+    val unit = known.matchKnownUnit("fath")
 
     "return something..." in {
       unit must beSome
@@ -45,7 +45,7 @@ class KnownUnitsFinderSpec extends Specification {
   }
 
   "Given an abbreviation ending in ., the finder" should {
-    val unit = known.get("f.")
+    val unit = known.matchKnownUnit("f.")
 
     "return something..." in {
       unit must beSome
@@ -62,7 +62,7 @@ class KnownUnitsFinderSpec extends Specification {
 
 
   "Given an unknown unit string, the finder" should {
-    val unit = known.get("hey")
+    val unit = known.matchKnownUnit("hey")
 
     "return none" in {
       unit must beNone

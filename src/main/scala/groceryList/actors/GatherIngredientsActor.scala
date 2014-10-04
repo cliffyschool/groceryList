@@ -17,7 +17,7 @@ class GatherIngredientsActor(parserRef: ActorRef) extends Actor {
 
   def receive = {
       case GatherIngredientsRequest(fromText) ⇒
-        val lines = fromText.split("\n")
+        val lines = fromText.split("\n").toList.par
         val msgs =
         lines.map { line =>
           (parserRef ? ParseIngredient(line)).map {
