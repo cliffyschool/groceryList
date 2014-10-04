@@ -9,7 +9,7 @@ import groceryList.model.{Ingredient, UnitOfMeasure}
  */
 class DefaultIngredientParser extends IngredientParser {
 
-  val strategies = Map[String, (String) => Option[Ingredient]](
+  val strategies = Array[(String, (String) => Option[Ingredient])](
     "easy" -> ParseIngredientStrategy.assumeEasyFormat,
     "ingredientWithNumbers" -> ParseIngredientStrategy.assumeIngredientContainsNumbers,
     "knownUnit" -> ParseIngredientStrategy.assumeKnownUnit,

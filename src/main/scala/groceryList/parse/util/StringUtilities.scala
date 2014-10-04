@@ -7,6 +7,8 @@ import scala.util.Try
 object StringUtils {
 
   val fractionFormat = new FractionFormat()
+  
+  val numberOrRatioRegex = "(^a|(\\d+\\s)?(\\d+)/(\\d+)|\\d*(\\.\\d+)?)".r
 
   implicit class StringImprovements(val s: String) {
     import scala.util.control.Exception._

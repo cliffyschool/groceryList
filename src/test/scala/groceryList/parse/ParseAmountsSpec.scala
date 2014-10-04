@@ -1,6 +1,6 @@
 package groceryList.parse
 
-import groceryList.model.{Ingredient, UnitOfMeasure}
+import groceryList.model.{KnownUnitOfMeasure, UnknownUnitOfMeasure, Ingredient, UnitOfMeasure}
 import org.specs2.matcher.DataTables
 import org.specs2.Specification
 
@@ -41,7 +41,7 @@ class ParseAmountsSpec extends Specification with DataTables{ def is =
           },
           unit = expectedUnit match {
           case "" => None
-          case s: String => Some(UnitOfMeasure(s, expectedUnitIsKnown))
+          case s: String => if (expectedUnitIsKnown) Some(KnownUnitOfMeasure(s)) else Some(UnknownUnitOfMeasure(s))
         })
         parser.fromLine(line) must beSome(expected)
       }
