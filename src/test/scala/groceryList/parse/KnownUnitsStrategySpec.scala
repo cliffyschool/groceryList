@@ -10,22 +10,61 @@ class KnownUnitsStrategySpec extends Specification {
 
   def beAKnownUnit = beSome[KnownUnitOfMeasure]
 
+  def strategy: (String) => Option[Ingredient] = ParseIngredientStrategy.assumeKnownUnit
+
+  "Given a line containing a known unit anywhere after a number, it" should {
+    val line = "1 gibberish hey there cup 1.4 blah blee"
+    val ingredient = strategy(line)
+
+    "return some ingredient" in {
+      ingredient must beSome[Ingredient]
+    }
+
+    "detect the known unit" in {
+      ingredient.get.unit must beSome(KnownUnitOfMeasure("cup"))
+    }
+  }
+
+  "Given a line starting with one integer, it" should {
+    val line = "1 cup butter"
+    val ingredient = strategy(line)
+
+    "return some ingredient" in {
+      ingredient must beSome[Ingredient]
+    }
+
+    "use that integer as quantity" in {
+      ingredient.get.amount must beSome(1)
+    }
+  }
+
+  "Given a line starting with a ratio, it" should {
+    val line = "1 1/2 cups butter"
+    val ingredient = strategy(line)
+
+    "return some ingredient" in {
+      ingredient must beSome[Ingredient]
+    }
+
+    "use that ratio as quantity" in {
+      ingredient.get.amount must beSome(1.5)
+    }
+  }
+
+  "Given a line starting with a decimal, it" should {
+    val line = "1.53 cups butter"
+    val ingredient = strategy(line)
+
+    "return some ingredient" in {
+      ingredient must beSome[Ingredient]
+    }
+
+    "use that ratio as quantity" in {
+      ingredient.get.amount must beSome(1.53)
+    }
+  }
+
   "known units strategy" should {
-
-    "use the first number as quantity" in {
-      val u = ParseIngredientStrategy.assumeKnownUnit("1 cup butter")
-      u must beSome(Ingredient(amount=Some(1),unit=Some(KnownUnitOfMeasure("cup")), name="butter"))
-    }
-
-    "handle ratios as quantity" in {
-      val u = ParseIngredientStrategy.assumeKnownUnit("1 1/2 cups butter")
-      u must beSome(Ingredient(amount=Some(1.5),unit=Some(KnownUnitOfMeasure("cup")), name="butter"))
-    }
-
-    "handle decimal values as quantity" in {
-      val u = ParseIngredientStrategy.assumeKnownUnit("1.53 cups butter")
-      u must beSome(Ingredient(amount=Some(1.53),unit=Some(KnownUnitOfMeasure("cup")), name="butter"))
-    }
 
     "return None if the amount qualifying the unit is not the first number" in {
       val u = ParseIngredientStrategy.assumeKnownUnit("6 8 oz. steaks")
