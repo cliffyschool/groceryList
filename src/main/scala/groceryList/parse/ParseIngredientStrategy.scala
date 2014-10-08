@@ -63,11 +63,13 @@ object ParseIngredientStrategy {
   }
 
   def buildIngredient(ingredient: String, amount:String,unit:String) = {
-    knownUnits.matchKnownUnit(unit)
-      .flatMap(knownUnit => Some(Ingredient(ingredient, parseAmount(amount), Some(knownUnit))))
+    knownUnits.matchKnownUnit(unit) match{
+      case Some(knownUnit) => Some(Ingredient(ingredient, parseAmount(amount), Some(knownUnit)))
+      case None => Some(Ingredient(ingredient, parseAmount(amount), Some(UnknownUnitOfMeasure(unit))))
+    }
   }
 
-  def assumeIngredientContainsNumbers (line:String) : Option[Ingredient] = {
+  def assumeNumericallyQualifiedUnit (line:String) : Option[Ingredient] = {
     for {
       knownUnits <- Option(detectKnownUnits(line))
       if knownUnits.length >= 2

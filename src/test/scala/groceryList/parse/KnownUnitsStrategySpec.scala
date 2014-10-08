@@ -1,33 +1,28 @@
 package groceryList.parse
 
 import groceryList.model.{KnownUnitOfMeasure, Ingredient, UnitOfMeasure}
+import org.specs2.matcher.Matcher
 import org.specs2.mutable.Specification
 
-/**
- * Created by U6017873 on 7/13/2014.
- */
 class KnownUnitsStrategySpec extends Specification {
 
-  def beAKnownUnit = beSome[KnownUnitOfMeasure]
+  def parse: (String) => Option[Ingredient] = ParseIngredientStrategy.assumeKnownUnit
 
-  def strategy: (String) => Option[Ingredient] = ParseIngredientStrategy.assumeKnownUnit
-
+  
   "Given a line containing a known unit anywhere after a number, it" should {
-    val line = "1 gibberish hey there cup 1.4 blah blee"
-    val ingredient = strategy(line)
+    val ingredient = parse("1 gibberish hey there cup 1.4 blah blee")
 
     "return some ingredient" in {
       ingredient must beSome[Ingredient]
     }
 
-    "detect the known unit" in {
+    "use the known unit" in {
       ingredient.get.unit must beSome(KnownUnitOfMeasure("cup"))
     }
   }
 
   "Given a line starting with one integer, it" should {
-    val line = "1 cup butter"
-    val ingredient = strategy(line)
+    val ingredient = parse("1 cup butter")
 
     "return some ingredient" in {
       ingredient must beSome[Ingredient]
@@ -39,8 +34,7 @@ class KnownUnitsStrategySpec extends Specification {
   }
 
   "Given a line starting with a ratio, it" should {
-    val line = "1 1/2 cups butter"
-    val ingredient = strategy(line)
+    val ingredient = parse("1 1/2 cups butter")
 
     "return some ingredient" in {
       ingredient must beSome[Ingredient]
@@ -52,8 +46,7 @@ class KnownUnitsStrategySpec extends Specification {
   }
 
   "Given a line starting with a decimal, it" should {
-    val line = "1.53 cups butter"
-    val ingredient = strategy(line)
+    val ingredient = parse("1.53 cups butter")
 
     "return some ingredient" in {
       ingredient must beSome[Ingredient]
@@ -65,8 +58,7 @@ class KnownUnitsStrategySpec extends Specification {
   }
 
   "Given a line with two numbers before the unit, it" should {
-    val line = "6 8 oz. steaks"
-    val ingredient = strategy(line)
+    val ingredient = parse("6 8 oz. steaks")
 
     "return None" in {
       ingredient must beNone
@@ -74,8 +66,7 @@ class KnownUnitsStrategySpec extends Specification {
   }
 
   "Given a line with junk between the first number and the first unit, it" should {
-    val line = "4 tra lee, tra la cup butter"
-    val ingredient = strategy(line)
+    val ingredient = parse("4 tra lee, tra la cup butter")
 
     "return some ingredient" in {
       ingredient must beSome[Ingredient]
@@ -95,8 +86,7 @@ class KnownUnitsStrategySpec extends Specification {
   }
 
   "Given a line with multiple known units, it" should {
-    val line = "1 cup tablespoon butter"
-    val ingredient = strategy(line)
+    val ingredient = parse("1 cup tablespoon butter")
 
     "return some ingredient" in {
       ingredient must beSome
@@ -109,13 +99,13 @@ class KnownUnitsStrategySpec extends Specification {
 
   "Given a line with no known units, it" should {
     "return none" in {
-      strategy("1 cupz butter") must beNone
+      parse("1 cupz butter") must beNone
     }
   }
 
   "Given a line missing an ingredient name, it" should {
     "return none" in {
-      strategy("3 cups") must beNone
+      parse("3 cups") must beNone
     }
   }
 }
