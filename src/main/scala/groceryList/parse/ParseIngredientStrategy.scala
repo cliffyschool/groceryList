@@ -100,6 +100,7 @@ object ParseIngredientStrategy {
       firstNumOverall <- numberOrRatioRegex.findFirstMatchIn(line)
       if unitQualifier.startOfMatch == firstNumOverall.start
       everythingAfterUnit = line.substring(firstMatch.endOfMatch).trim
+      if (everythingAfterUnit.length > 0)
     } yield
       Ingredient(everythingAfterUnit, Some(unitQualifier.matched), Some(firstMatch.matched))
   }
