@@ -64,32 +64,58 @@ class KnownUnitsStrategySpec extends Specification {
     }
   }
 
-  "known units strategy" should {
+  "Given a line with two numbers before the unit, it" should {
+    val line = "6 8 oz. steaks"
+    val ingredient = strategy(line)
 
-    "return None if the amount qualifying the unit is not the first number" in {
-      val u = ParseIngredientStrategy.assumeKnownUnit("6 8 oz. steaks")
-      u must beNone
-    }
-
-    "ignore non-numbers between the first number and the first unit" in {
-      val u = ParseIngredientStrategy.assumeKnownUnit("4 tra lee, tra la cup butter")
-      u must beSome(Ingredient(amount=Some(4),unit=Some(KnownUnitOfMeasure("cup")), name="butter"))
-     }
-
-    "use the first matched unit as the unit" in {
-      val u = ParseIngredientStrategy.assumeKnownUnit("1 cup tablespoon butter")
-      u must beSome(Ingredient(amount=Some(1),unit=Some(KnownUnitOfMeasure("cup")), name="tablespoon butter"))
-    }
-
-    "return None if no known unit is detected" in {
-      val u = ParseIngredientStrategy.assumeKnownUnit("1 cupz butter")
-      u must beNone
-    }
-
-    "handle empty ingredient name" in {
-      val u = ParseIngredientStrategy.assumeKnownUnit("3 cups")
-      u must beSome(Ingredient(name="", amount = Some(3), unit = Some(KnownUnitOfMeasure("cup"))))
+    "return None" in {
+      ingredient must beNone
     }
   }
 
+  "Given a line with junk between the first number and the first unit, it" should {
+    val line = "4 tra lee, tra la cup butter"
+    val ingredient = strategy(line)
+
+    "return some ingredient" in {
+      ingredient must beSome[Ingredient]
+    }
+
+    "use the number as quanity" in {
+      ingredient.get.amount must beSome(4)
+    }
+
+    "use the text after the unit as the ingredient" in {
+      ingredient.get.name must equalTo("butter")
+    }
+
+    "use the unit" in {
+      ingredient.get.unit must beSome(KnownUnitOfMeasure("cup"))
+    }
+  }
+
+  "Given a line with multiple known units, it" should {
+    val line = "1 cup tablespoon butter"
+    val ingredient = strategy(line)
+
+    "return some ingredient" in {
+      ingredient must beSome
+    }
+
+    "use the first matched unit as the unit" in {
+      ingredient.get.unit must beSome(KnownUnitOfMeasure("cup"))
+    }
+  }
+
+  "Given a line with no known units, it" should {
+    "return none" in {
+      strategy("1 cupz butter") must beNone
+    }
+  }
+
+  "Given a line missing an ingredient name, it" should {
+    "return none" in {
+      strategy("3 cups") must beNone
+    }
+  }
 }
