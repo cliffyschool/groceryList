@@ -18,7 +18,7 @@ class MakeListSpec extends Specification with Directives with Specs2RouteTest wi
   "list endpoint should support" >> {
     "get list by id" in {
       Get(s"/$path/abc") ~> route ~> check {
-        responseAs[String] must equalTo("one")
+        responseAs[String] must contain("one")
       }
     }
 

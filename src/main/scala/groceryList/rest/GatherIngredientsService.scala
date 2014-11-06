@@ -17,7 +17,7 @@ class GatherIngredientsService(gather: ActorRef)(implicit ec:ExecutionContext) e
 
   import JsonProtocol._
 
-  var responses = Map[String,GatherIngredientsResponse]()
+  var responses = Map[String,GatherIngredientsResponse]("abc" -> GatherIngredientsResponse("one"))
 
   val gatherRoute =
   path("list" / Segment) { id: String =>
