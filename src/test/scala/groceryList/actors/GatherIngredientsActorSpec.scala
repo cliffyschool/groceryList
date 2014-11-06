@@ -31,7 +31,7 @@ with StrategyComponent
     gatherActor ! GatherIngredientsRequest("1 cups butter\n2 tbsp. sugar")
 
     "send a message for each line" in {
-      expectMsgAllOf(GatherIngredientsResponse("cup"), GatherIngredientsResponse("tablespoon")) must haveSize(2)
+      expectMsgAllOf(GatherIngredientsResponse("butter"), GatherIngredientsResponse("sugar")) must haveSize(2)
 
     }
   }

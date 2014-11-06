@@ -5,7 +5,7 @@ scalaVersion := "2.11.2"
 version := "1.0"
 
 val akkaVersion = "2.3.4"
-val sprayVersion = "1.3.1"
+val sprayVersion = "1.3.2"
 
 resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/"
 
@@ -17,5 +17,5 @@ libraryDependencies ++= Seq(
    "io.spray" %% "spray-testkit" % sprayVersion % "test",
   "io.spray" %% "spray-can" % sprayVersion,
   "io.spray" %% "spray-routing" % sprayVersion,
-  "io.spray" %% "spray-json" % sprayVersion exclude ("org.scala-lang" , "scala-library"),
+  "io.spray" %% "spray-json" % "1.3.1" exclude ("org.scala-lang" , "scala-library"),
   "org.apache.commons" % "commons-math" % "2.2")

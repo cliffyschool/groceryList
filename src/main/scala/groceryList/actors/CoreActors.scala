@@ -8,8 +8,8 @@ import java.util.concurrent.TimeUnit
 /**
  * Created by cfreeman on 7/29/14.
  */
-trait CoreActors {
-  this: Core with StrategyComponent =>
+trait CoreActors extends StrategyComponent {
+  this: Core =>
 
 
   val ourSystem = ActorSystem("system")
