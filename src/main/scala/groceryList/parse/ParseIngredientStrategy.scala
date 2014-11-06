@@ -4,7 +4,7 @@ import groceryList.parse.util.StringUtils
 import org.apache.commons.math.fraction.FractionFormat
 import scala.util.Try
 import StringUtils._
-import groceryList.model.{UnknownUnitOfMeasure, KnownUnitOfMeasure, UnitOfMeasure, Ingredient}
+import groceryList.model.{UnknownUnitOfMeasure, WellKnownUnitOfMeasure, UnitOfMeasure, Ingredient}
 
 import scala.util.matching.Regex
 
@@ -18,7 +18,7 @@ import scala.util.matching.Regex
  */
 object ParseIngredientStrategy {
 
-  val knownUnits = KnownUnitsFinder(Map(
+  val wellKnownUnitsFinder = WellKnownUnitsFinder(Map(
     "cup" -> Seq("cups", "c."),
     "tablespoon" -> Seq("tbsp", "tbsp.", "tablespoons"),
     "teaspoon" -> Seq("tsp", "tsp.", "teaspoons"),
@@ -44,7 +44,7 @@ object ParseIngredientStrategy {
 
   def detectKnownUnits(str:String) = {
     unitPatternRgx.findAllMatchIn(str)
-      .map(m => knownUnits.matchKnownUnit(m.matched)
+      .map(m => wellKnownUnitsFinder.matchKnownUnit(m.matched)
       .flatMap(knownUnit => Some(Match(knownUnit, m.start, m.end))))
     .flatten
     .toSeq
@@ -63,7 +63,7 @@ object ParseIngredientStrategy {
   }
 
   def buildIngredient(ingredient: String, amount:String,unit:String) = {
-    knownUnits.matchKnownUnit(unit) match{
+    wellKnownUnitsFinder.matchKnownUnit(unit) match{
       case Some(knownUnit) => Some(Ingredient(ingredient, parseAmount(amount), Some(knownUnit)))
       case None => Some(Ingredient(ingredient, parseAmount(amount), Some(UnknownUnitOfMeasure(unit))))
     }
@@ -123,8 +123,8 @@ object ParseIngredientStrategy {
 
 
   def buildQualifiedUnit(qualifierQuantity: Double,
-                         qualifierUnit: KnownUnitOfMeasure,
-                         mainUnit: KnownUnitOfMeasure) = {
+                         qualifierUnit: WellKnownUnitOfMeasure,
+                         mainUnit: WellKnownUnitOfMeasure) = {
     val compoundUnit = qualifierQuantity + " " + qualifierUnit.name + " " + mainUnit.name
     UnknownUnitOfMeasure(compoundUnit)
   }

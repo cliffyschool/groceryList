@@ -1,5 +1,7 @@
 name := "groceryList"
 
+scalaVersion := "2.11.2"
+
 version := "1.0"
 
 val akkaVersion = "2.3.4"
@@ -12,8 +14,8 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-actor" % akkaVersion
       exclude ("org.scala-lang" , "scala-library"),
  "com.typesafe.akka" %% "akka-testkit" % akkaVersion % "test",
-   "io.spray" % "spray-testkit" % sprayVersion % "test",
-  "io.spray" % "spray-can" % sprayVersion,
-  "io.spray" % "spray-routing" % sprayVersion,
-  "io.spray" %% "spray-json" % "1.2.5" exclude ("org.scala-lang" , "scala-library"),
+   "io.spray" %% "spray-testkit" % sprayVersion % "test",
+  "io.spray" %% "spray-can" % sprayVersion,
+  "io.spray" %% "spray-routing" % sprayVersion,
+  "io.spray" %% "spray-json" % sprayVersion exclude ("org.scala-lang" , "scala-library"),
   "org.apache.commons" % "commons-math" % "2.2")

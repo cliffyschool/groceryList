@@ -1,7 +1,7 @@
 package groceryList.parse
 
 import groceryList.actors.Core
-import groceryList.model.{KnownUnitOfMeasure, UnknownUnitOfMeasure, Ingredient, UnitOfMeasure}
+import groceryList.model.{WellKnownUnitOfMeasure, UnknownUnitOfMeasure, Ingredient, UnitOfMeasure}
 import org.specs2.matcher.DataTables
 import org.specs2.Specification
 
@@ -40,7 +40,7 @@ class ParseAmountsSpec extends Specification with DataTables with StrategyCompon
           },
           unit = expectedUnit match {
           case "" => None
-          case s: String => if (expectedUnitIsKnown) Some(KnownUnitOfMeasure(s)) else Some(UnknownUnitOfMeasure(s))
+          case s: String => if (expectedUnitIsKnown) Some(WellKnownUnitOfMeasure(s)) else Some(UnknownUnitOfMeasure(s))
         })
         parser.fromLine(line) must beSome(expected)
       }

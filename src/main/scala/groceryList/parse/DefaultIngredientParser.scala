@@ -1,7 +1,6 @@
 package groceryList.parse
 
-import scala.collection.mutable
-import groceryList.model.{Ingredient, UnitOfMeasure}
+import groceryList.model.{ListItem, Ingredient, UnitOfMeasure}
 import groceryList.parse.util.StringUtils._
 /**
  * Created by U6017873 on 7/6/2014.
@@ -16,21 +15,14 @@ case class DefaultIngredientParser(strategies: Array[Strategy]) extends Ingredie
       strategies.toStream.flatMap (s => s._2(line)).headOption
   }
 
-  def makeList(l1: Seq[Ingredient], l2: Seq[Ingredient]) : Seq[Ingredient] = {
-    val combined = l1 ++ l2
-    val r = combined.groupBy { (ingredient) => (ingredient.name, ingredient.unit)}
-      .mapValues(_.reduce { (left, right) => Ingredient(left.name, combineAmounts(left, right), left.unit)})
-      .values.toList
-    r
-  }
-
-  def combineAmounts(left: Ingredient, right: Ingredient): Option[Double] = {
-    (left.amount, right.amount) match {
-      case (Some(l), Some(r)) => Some(l + r)
-      case (Some(l), None) => Some(l)
-      case (None, Some(r)) => Some(r)
-      case (None, None) => None
-    }
+  def mergeIngredients(ingredients: Ingredient*) : Seq[ListItem] = {
+    ingredients.groupBy { (ingredient) => (ingredient.name, ingredient.unit)}
+      .map(entry => ListItem(
+      entry._1._1,
+      entry._2.map(ing => ing.amount).flatten.sum match { case 0 => None case d => Some(d)},
+      entry._1._2,
+      entry._2))
+      .toSeq
   }
 }
 

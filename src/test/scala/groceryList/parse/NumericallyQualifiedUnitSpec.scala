@@ -1,6 +1,6 @@
 package groceryList.parse
 
-import groceryList.model.{KnownUnitOfMeasure, Ingredient, UnitOfMeasure}
+import groceryList.model.{WellKnownUnitOfMeasure, Ingredient, UnitOfMeasure}
 import org.specs2.mutable.Specification
 
 class NumericallyQualifiedUnitSpec extends Specification {

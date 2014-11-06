@@ -1,6 +1,6 @@
 package groceryList.parse
 
-import groceryList.model.{KnownUnitOfMeasure, Ingredient, UnitOfMeasure}
+import groceryList.model.{WellKnownUnitOfMeasure, Ingredient, UnitOfMeasure}
 import org.specs2.matcher.Matcher
 import org.specs2.mutable.Specification
 
@@ -17,7 +17,7 @@ class KnownUnitsStrategySpec extends Specification {
     }
 
     "use the known unit" in {
-      ingredient.get.unit must beSome(KnownUnitOfMeasure("cup"))
+      ingredient.get.unit must beSome(WellKnownUnitOfMeasure("cup"))
     }
   }
 
@@ -81,7 +81,7 @@ class KnownUnitsStrategySpec extends Specification {
     }
 
     "use the unit" in {
-      ingredient.get.unit must beSome(KnownUnitOfMeasure("cup"))
+      ingredient.get.unit must beSome(WellKnownUnitOfMeasure("cup"))
     }
   }
 
@@ -93,7 +93,7 @@ class KnownUnitsStrategySpec extends Specification {
     }
 
     "use the first matched unit as the unit" in {
-      ingredient.get.unit must beSome(KnownUnitOfMeasure("cup"))
+      ingredient.get.unit must beSome(WellKnownUnitOfMeasure("cup"))
     }
   }
 

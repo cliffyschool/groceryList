@@ -1,6 +1,6 @@
 package groceryList.parse
 
-import groceryList.model.KnownUnitOfMeasure
+import groceryList.model.WellKnownUnitOfMeasure
 import org.specs2.mutable.Specification
 
 /**
@@ -8,7 +8,7 @@ import org.specs2.mutable.Specification
  */
 class KnownUnitsFinderSpec extends Specification {
 
-  val known = KnownUnitsFinder(Map("fathom" -> Seq("fathoms", "fath", "f", "f.")))
+  val known = WellKnownUnitsFinder(Map("fathom" -> Seq("fathoms", "fath", "f", "f.")))
   val unitString = "fathom"
 
   "Given a known unit string, finder" should {
@@ -16,7 +16,7 @@ class KnownUnitsFinderSpec extends Specification {
     val unit = known.matchKnownUnit(unitString)
 
     "return something..." in {
-      unit must beSome[KnownUnitOfMeasure]
+      unit must beSome[WellKnownUnitOfMeasure]
     }
 
     "...that is marked as known" in {
