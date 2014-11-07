@@ -18,7 +18,8 @@ class MakeListSpec extends Specification with Directives with Specs2RouteTest wi
   "list endpoint should support" >> {
     "get list by id" in {
       Get(s"/$path/abc") ~> route ~> check {
-        responseAs[String] must contain("one")
+        val gatherResponse = responseAs[GatherIngredientsResponse]
+        gatherResponse.parsed must beSome
       }
     }
 
@@ -30,9 +31,10 @@ class MakeListSpec extends Specification with Directives with Specs2RouteTest wi
 
     "post ingredients, then get list" in {
       val listId = Post(s"/$path", GatherIngredientsRequest("1 cup butter")) ~> route ~> check {responseAs[String]}
-      Thread.sleep(2000)
-      val listContent = Get(s"/$path/$listId") ~> route ~> check {responseAs[String]}
-      listContent must contain("butter")
+      Thread.sleep(5000)
+      val listContent = Get(s"/$path/$listId") ~> route ~> check {responseAs[GatherIngredientsResponse]}
+      listContent.parsed must beSome
+      listContent.parsed.get.i.name must equalTo("butter")
     }
   }
 }

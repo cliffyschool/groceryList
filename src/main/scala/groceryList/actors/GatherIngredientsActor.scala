@@ -21,8 +21,8 @@ class GatherIngredientsActor(parserRef: ActorRef) extends Actor {
         val msgs =
         lines.map { line =>
           (parserRef ? ParseIngredient(line)).map {
-            case p: IngredientParsed => GatherIngredientsResponse(p.i.name)
-            case n: NoIngredientParsed => GatherIngredientsResponse("nope")
+            case p: IngredientParsed => GatherIngredientsResponse(Option(p))
+            case n: NoIngredientParsed => GatherIngredientsResponse(None)
           }
         }
         msgs.map(futureResponse => futureResponse pipeTo sender)
@@ -30,4 +30,4 @@ class GatherIngredientsActor(parserRef: ActorRef) extends Actor {
 }
 
 case class GatherIngredientsRequest(fromText: String)
-case class GatherIngredientsResponse(text: String)
+case class GatherIngredientsResponse(parsed: Option[IngredientParsed])
