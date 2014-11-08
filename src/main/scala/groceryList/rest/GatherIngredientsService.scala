@@ -15,11 +15,11 @@ import scala.concurrent.duration._
 
 import scala.concurrent.ExecutionContext
 
-class GatherIngredientsService(gather: ActorRef)(implicit ec:ExecutionContext) extends Directives {
+class GatherIngredientsService(gatherActor: ActorRef)(implicit ec:ExecutionContext) extends Directives {
 
   import JsonProtocol._
 
-  var responses = Map[String,GatherIngredientsResponse]("abc" -> GatherIngredientsResponse(Some(IngredientParsed(Ingredient("butter", Some(1), Some(WellKnownUnitOfMeasure("cup")))))))
+  var responses = Map[String,GatherIngredientsResponse]("abc" -> GatherIngredientsResponse(Seq(IngredientParsed(Ingredient("butter", Some(1), Some(WellKnownUnitOfMeasure("cup")))))))
 
   val gatherRoute =
   path("list" / Segment) { id: String =>
@@ -34,8 +34,8 @@ class GatherIngredientsService(gather: ActorRef)(implicit ec:ExecutionContext) e
             val id = UUID.randomUUID().toString
             implicit val timeout = Timeout(5 seconds)
 
-            val futResponse = gather ? gatherRequest
-            futResponse.map {
+            val futResponse = gatherActor ? gatherRequest
+            futResponse.onSuccess {
               case r: GatherIngredientsResponse =>
                 responses = responses + (id -> r)
             }

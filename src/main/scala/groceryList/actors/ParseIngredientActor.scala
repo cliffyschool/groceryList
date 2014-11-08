@@ -24,6 +24,6 @@ trait ParseResponse
 
 object ParseIngredientActor {
   case class ParseIngredient(line: String)
-  case class IngredientParsed(i: Ingredient) extends ParseResponse
+  case class IngredientParsed(ingredient: Ingredient) extends ParseResponse
   case class NoIngredientParsed(from: String) extends ParseResponse
 }

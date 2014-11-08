@@ -29,7 +29,7 @@ with StrategyComponent
     }
 
     "...with ingredient details" in {
-      msg.i must not beNull
+      msg.ingredient must not beNull
     }
   }
 
