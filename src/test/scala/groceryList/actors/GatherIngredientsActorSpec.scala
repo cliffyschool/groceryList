@@ -32,7 +32,8 @@ with StrategyComponent
     gatherActor ! GatherIngredientsRequest("1 cups butter\n2 tbsp. sugar")
 
     "send a message for each line" in {
-      expectMsgAllClassOf(classOf[GatherIngredientsResponse], classOf[GatherIngredientsResponse]) must haveSize(2)
+      val msg = expectMsgClass(classOf[GatherIngredientsResponse])
+      msg.results must haveSize(2)
     }
   }
 }

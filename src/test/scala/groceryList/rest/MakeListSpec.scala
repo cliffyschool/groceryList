@@ -1,7 +1,6 @@
 package groceryList.rest
 
 import groceryList.actors.{GatherIngredientsResponse, GatherIngredientsRequest, Core, CoreActors}
-import groceryList.model.WellKnownUnitOfMeasure
 import org.specs2.mutable.Specification
 import spray.http.StatusCodes._
 import spray.httpx.SprayJsonSupport._

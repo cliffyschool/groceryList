@@ -1,7 +1,7 @@
 package groceryList.rest
 
-import groceryList.actors.ParseIngredientActor.IngredientParsed
-import groceryList.actors.{GatherIngredientsResponse, GatherIngredientsRequest}
+import groceryList.actors.ParseIngredientActor.{NoIngredientParsed, IngredientParsed}
+import groceryList.actors.{ParseResponse, GatherIngredientsResponse, GatherIngredientsRequest}
 import groceryList.model.{UnitOfMeasure, WellKnownUnitOfMeasure, UnknownUnitOfMeasure, Ingredient}
 import spray.json.{JsString, JsValue, RootJsonFormat, DefaultJsonProtocol}
 import spray.json._
@@ -22,6 +22,18 @@ object JsonProtocol extends DefaultJsonProtocol {
       }
   }
   implicit val ingFormat = jsonFormat3(Ingredient)
+  implicit val noIngParsedFormat = jsonFormat1(NoIngredientParsed)
+  implicit object ParseResponseFormat extends RootJsonFormat[ParseResponse]{
+    def write(a: ParseResponse) = a match {
+      case p: IngredientParsed => p.toJson
+      case n: NoIngredientParsed => n.toJson
+    }
+    def read(value: JsValue) =
+      value.asJsObject match {
+        case o if o.fields("ingredient") != null => value.convertTo[IngredientParsed]
+        case _ => value.convertTo[NoIngredientParsed]
+      }
+  }
   implicit val ingParsedFormat = jsonFormat1(IngredientParsed)
   implicit val gatherResponseFormat = jsonFormat1(GatherIngredientsResponse)
 }
