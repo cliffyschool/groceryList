@@ -1,6 +1,8 @@
 package groceryList.rest
 
+import groceryList.actors.ParseIngredientActor.IngredientParsed
 import groceryList.actors.{GatherIngredientsResponse, GatherIngredientsRequest, Core, CoreActors}
+import groceryList.model.WellKnownUnitOfMeasure
 import org.specs2.mutable.Specification
 import spray.http.StatusCodes._
 import spray.httpx.SprayJsonSupport._
@@ -19,7 +21,7 @@ class MakeListSpec extends Specification with Directives with Specs2RouteTest wi
     "get list by id" in {
       Get(s"/$path/abc") ~> route ~> check {
         val gatherResponse = responseAs[GatherIngredientsResponse]
-        gatherResponse.parsed must beSome
+        gatherResponse.results must not beEmpty
       }
     }
 
@@ -30,12 +32,11 @@ class MakeListSpec extends Specification with Directives with Specs2RouteTest wi
     }
 
     "post ingredients, then get list" in {
-      val listId = Post(s"/$path", GatherIngredientsRequest("1 cup butter")) ~> route ~> check {responseAs[String]}
+      val listId = Post(s"/$path", GatherIngredientsRequest("1 cup butter\n1 tbsp. sugar")) ~> route ~> check {responseAs[String]}
       Thread.sleep(5000)
       val listContent = Get(s"/$path/$listId") ~> route ~> check {responseAs[GatherIngredientsResponse]}
-      listContent.parsed must beSome
-      listContent.parsed.get.i.name must equalTo("butter")
-      listContent.parsed.get.i.unit must beSome(WellKnownUnitOfMeasure("cup"))
+      listContent.results must haveSize(2)
+      listContent.results(0) must beAnInstanceOf[IngredientParsed]
     }
   }
 }
