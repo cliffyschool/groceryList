@@ -1,6 +1,7 @@
 package groceryList.rest
 
 import groceryList.actors.{GatherIngredientsResponse, GatherIngredientsRequest, Core, CoreActors}
+import groceryList.model.WellKnownUnitOfMeasure
 import org.specs2.mutable.Specification
 import spray.http.StatusCodes._
 import spray.httpx.SprayJsonSupport._
@@ -35,6 +36,7 @@ class MakeListSpec extends Specification with Directives with Specs2RouteTest wi
       val listContent = Get(s"/$path/$listId") ~> route ~> check {responseAs[GatherIngredientsResponse]}
       listContent.parsed must beSome
       listContent.parsed.get.i.name must equalTo("butter")
+      listContent.parsed.get.i.unit must beSome(WellKnownUnitOfMeasure("cup"))
     }
   }
 }
