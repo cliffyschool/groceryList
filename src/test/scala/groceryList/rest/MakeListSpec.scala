@@ -32,8 +32,8 @@ class MakeListSpec extends Specification with Directives with Specs2RouteTest wi
     }
 
     "post ingredients, then get list" in {
-      val listId = Post(s"/$path", GatherIngredientsRequest("1 cup butter\n1 tbsp. sugar")) ~> route ~> check {responseAs[String]}
-      Thread.sleep(5000)
+      val listId = Post(s"/$path", GatherIngredientsRequest("1 cup butter\n2 tbsp. sugar")) ~> route ~> check {responseAs[String]}
+      Thread.sleep(3000)
       val listContent = Get(s"/$path/$listId") ~> route ~> check {responseAs[GatherIngredientsResponse]}
       listContent.results must haveSize(2)
       listContent.results(0) must beAnInstanceOf[IngredientParsed]

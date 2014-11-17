@@ -7,7 +7,7 @@ import akka.util.Timeout
 import groceryList.actors.ParseIngredientActor.IngredientParsed
 import groceryList.actors.{GatherIngredientsRequest, GatherIngredientsResponse}
 import groceryList.model.{WellKnownUnitOfMeasure, Ingredient}
-import spray.http.MediaTypes
+import spray.http.{StatusCodes, MediaTypes}
 import spray.httpx.SprayJsonSupport._
 import spray.json
 import spray.routing.Directives
@@ -21,35 +21,34 @@ class GatherIngredientsService(gatherActor: ActorRef)(implicit ec:ExecutionConte
 
   import spray.json._
   import JsonProtocol._
+  implicit val timeout = Timeout(5 seconds)
 
-  var responses = Map[String,GatherIngredientsResponse]("abc" -> GatherIngredientsResponse(Seq(IngredientParsed(Ingredient("butter", Some(1), Some(WellKnownUnitOfMeasure("cup")))))))
+  var responses = Map[String, GatherIngredientsResponse]("abc" -> GatherIngredientsResponse(Seq(IngredientParsed(Ingredient("butter", Some(1), Some(WellKnownUnitOfMeasure("cup")))))))
 
   val gatherRoute =
-  path("list" / Segment) { id: String =>
     get {
-        respondWithMediaType(MediaTypes.`application/json`)
-      println(responses.size)
-        complete(responses.get(id))
-    }
-  } ~
-  path("list") {
-    post {
-      respondWithMediaType(MediaTypes.`application/json`)
-      handleWith {
-          val id = UUID.randomUUID().toString
-          gatherRequest: GatherIngredientsRequest => {
-            val id = UUID.randomUUID().toString
-            implicit val timeout = Timeout(5 seconds)
-
-            val futResponse = gatherActor ? gatherRequest
-            futResponse.onSuccess {
-              case r: GatherIngredientsResponse =>
-                responses = responses + (id -> r)
-            }
+      pathSingleSlash {
+        redirect("/list", StatusCodes.Found)
+      } ~
+        path("list") {
+          complete(responses)
+        } ~
+        path("list" / Segment) { id =>
+          complete(responses.get(id))
+        }
+    } ~
+      post {
+        path("list") {
+          handleWith { gatherRequest: GatherIngredientsRequest =>
+              val id = UUID.randomUUID().toString
+              val futResponse = gatherActor ? gatherRequest
+              futResponse.onSuccess {
+                case r: GatherIngredientsResponse =>
+                  responses = responses + (id -> r)
+              }
+              futResponse.onFailure{case e => println("fails!"+e)}
+            id
           }
-          respondWithMediaType(MediaTypes.`application/json`)
-          id
+        }
       }
-    }
-  }
 }
