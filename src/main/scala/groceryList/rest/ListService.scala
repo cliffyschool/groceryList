@@ -17,7 +17,7 @@ import scala.concurrent.duration._
 
 import scala.concurrent.ExecutionContext
 
-class GatherIngredientsService(gatherActor: ActorRef)(implicit ec:ExecutionContext) extends Directives {
+class ListService(gatherActor: ActorRef)(implicit ec:ExecutionContext) extends Directives {
 
   import spray.json._
   import JsonProtocol._
@@ -25,7 +25,7 @@ class GatherIngredientsService(gatherActor: ActorRef)(implicit ec:ExecutionConte
 
   var responses = Map[String, GatherIngredientsResponse]("abc" -> GatherIngredientsResponse(Seq(IngredientParsed(Ingredient("butter", Some(1), Some(WellKnownUnitOfMeasure("cup")))))))
 
-  val gatherRoute =
+  val listRoute =
     get {
       pathSingleSlash {
         redirect("/list", StatusCodes.Found)

@@ -12,7 +12,7 @@ import JsonProtocol._
 import spray.testkit.Specs2RouteTest
 
 class MakeListSpec extends Specification with Directives with Specs2RouteTest with Core with CoreActors {
-  val route = new GatherIngredientsService(gatherActor).gatherRoute
+  val route = new ListService(gatherActor).listRoute
   val path = "list"
 
 //TODO: this spec reads badly

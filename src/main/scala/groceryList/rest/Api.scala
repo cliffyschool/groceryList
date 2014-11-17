@@ -7,5 +7,5 @@ import ExecutionContext.Implicits.global
 
 trait Api extends HttpService with CoreActors with Core{
   val routes =
-      new GatherIngredientsService(gatherActor).gatherRoute
+      new ListService(gatherActor).listRoute
 }
