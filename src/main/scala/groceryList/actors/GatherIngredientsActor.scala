@@ -21,6 +21,7 @@ class GatherIngredientsActor(parserRef: ActorRef) extends Actor with Aggregator 
 
   expectOnce {
     case GatherIngredientsRequest(fromText) ⇒
+
       new IngredientAggregator(sender, parserRef, fromText)
     case _ ⇒
       //sender() ! CantUnderstand
@@ -34,7 +35,7 @@ class GatherIngredientsActor(parserRef: ActorRef) extends Actor with Aggregator 
     val lines = fromText.split("\n").toList.par
     lines.map { line =>
       parseActor ! ParseIngredient(line)
-      expectOnce {
+      expect {
         case p: IngredientParsed =>
           responses += p
           sendResponses
