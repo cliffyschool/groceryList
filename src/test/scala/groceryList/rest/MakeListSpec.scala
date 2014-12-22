@@ -12,13 +12,16 @@ import JsonProtocol._
 import spray.testkit.Specs2RouteTest
 
 class MakeListSpec extends Specification with Directives with Specs2RouteTest with Core with CoreActors {
-  val route = new ListService(gatherActor).listRoute
+
   val path = "list"
 
 //TODO: this spec reads badly
 
+  sequential
+
   "list endpoint should support" >> {
     "get list by id" in {
+      val route = new ListService(gatherActor).listRoute
       Get(s"/$path/abc") ~> route ~> check {
         val gatherResponse = responseAs[GatherIngredientsResponse]
         gatherResponse.results must not beEmpty
@@ -26,14 +29,16 @@ class MakeListSpec extends Specification with Directives with Specs2RouteTest wi
     }
 
     "post ingredients to list" in {
+      val route = new ListService(gatherActor).listRoute
       Post(s"/$path", GatherIngredientsRequest("an ingredient")) ~> route ~> check {
         responseAs[String] must not beNull
       }
     }
 
     "post ingredients, then get list" in {
+      val route = new ListService(gatherActor).listRoute
       val listId = Post(s"/$path", GatherIngredientsRequest("1 cup butter\n2 tbsp. sugar")) ~> route ~> check {responseAs[String]}
-      Thread.sleep(3000)
+      Thread.sleep(1000)
       val listContent = Get(s"/$path/$listId") ~> route ~> check {responseAs[GatherIngredientsResponse]}
       listContent.results must haveSize(2)
       listContent.results(0) must beAnInstanceOf[IngredientParsed]
