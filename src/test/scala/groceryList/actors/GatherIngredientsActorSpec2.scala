@@ -1,13 +1,13 @@
 package groceryList.actors
 
-import org.specs2.mutable._
-import org.specs2.time.NoTimeConversions
+import scala.concurrent.duration._
 
 import akka.actor._
 import akka.testkit._
-import scala.concurrent.duration._
-import groceryList.parse.StrategyComponent
 import groceryList.actors.ParseIngredientActor._
+import groceryList.parse.StrategyComponent
+import org.specs2.mutable._
+import org.specs2.time.NoTimeConversions
 
 abstract class GatherRequest(gatherActor: ActorRef, msg: String) extends TestKit(ActorSystem()) 
 with After
