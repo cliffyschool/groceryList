@@ -32,7 +32,7 @@ class GatherIngredientsActor(parserRef: ActorRef) extends Actor with Aggregator 
 
     val responses = ArrayBuffer.empty[ParseResponse]
 
-    val lines = fromText.split("\n").toList.par
+    val lines = fromText.split("\n").filter(s => s.trim.length > 0).toList.par
     lines.map { line =>
       parseActor ! ParseIngredient(line)
       expect {
