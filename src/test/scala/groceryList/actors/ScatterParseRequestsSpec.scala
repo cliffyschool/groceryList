@@ -5,37 +5,35 @@ import akka.testkit._
 import groceryList.actors.ParseIngredientActor._
 import groceryList.model.Ingredient
 import groceryList.parse.{StrategyComponent, DefaultIngredientParser}
+import org.specs2.matcher.ResultMatchers
 import org.specs2.mutable._
 
-class GatherIngredientsActorSpec extends Specification with StrategyComponent {
+class ScatterParseRequestsSpec extends Specification with StrategyComponent with ResultMatchers{
 
-  class WithActors extends TestKit(ActorSystem("test")) with org.specs2.specification.Scope with ImplicitSender{
-    val parseActor = TestProbe()
+  class WithoutParseActor extends TestKit(ActorSystem("test")) with org.specs2.specification.Scope with ImplicitSender{
+    val stubParseActor = TestProbe()
     val gatherActor = system.actorOf(Props(new GatherIngredientsActor(){
-      override def parseActor = WithActors.this.parseActor.ref
+      override def parseActor = WithoutParseActor.this.stubParseActor.ref
     }))
   }
-
+  
   "Given a request with 2 non-blank lines of text, it" should {
-    "send 2 parse requests" in new WithActors {
+    "send 2 parse requests" in new WithoutParseActor {
       val twoValidIngredients = "1 cup butter\n1 tbsp. salt"
       gatherActor ! GatherIngredientsRequest(twoValidIngredients)
 
-      Seq("1 cup butter", "1 tbsp. salt")
-        .map { m =>
-        val msg = parseActor.expectMsgType[ParseIngredient]
-        msg.line must equalTo(m)
-      }
+      val ingredientNames = (1 to 2).map(i => stubParseActor.expectMsgType[ParseIngredient].line)
+      ingredientNames must contain("1 cup butter", "1 tbsp. salt")
     }
   }
 
   "Given a request with 1 non-blank line and 5 blank or whitespace lines, it" should {
-    "send exactly 1 parse request" in new WithActors{
+    "send exactly 1 parse request" in new WithoutParseActor{
         val oneIngredient5BlankLines = "1 cup butter\n\n \n\n \n"
         gatherActor ! GatherIngredientsRequest(oneIngredient5BlankLines)
-        val msg = parseActor.expectMsgType[ParseIngredient]
+        val msg = stubParseActor.expectMsgType[ParseIngredient]
         msg.line must equalTo("1 cup butter")
-        parseActor.expectNoMsg()
+        stubParseActor.expectNoMsg()
     }
   }
 

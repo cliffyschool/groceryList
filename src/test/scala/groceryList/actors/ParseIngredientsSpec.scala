@@ -6,7 +6,7 @@ import groceryList.actors.ParseIngredientActor.{IngredientParsed, NoIngredientPa
 import groceryList.parse.StrategyComponent
 import org.specs2.mutable.Specification
 
-class ParseIngredientActorSpec extends Specification
+class ParseIngredientsSpec extends Specification
 with StrategyComponent {
 
   class WithParseActor extends TestKit(ActorSystem("test")) with org.specs2.specification.Scope with ImplicitSender {
@@ -29,7 +29,7 @@ with StrategyComponent {
 
   "Given a blank line, the parse actor" should {
     "send a no-ingredient-parsed message" in new WithParseActor {
-      parseActor ! ParseIngredient("", "123:w" +
+      parseActor ! ParseIngredient("", "123" +
         "")
       val msg = expectMsgType[NoIngredientParsed]
       msg must not beNull

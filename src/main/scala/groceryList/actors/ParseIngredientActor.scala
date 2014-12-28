@@ -16,7 +16,6 @@ class ParseIngredientActor(parser: IngredientParser) extends Actor
         case None => NoIngredientParsed(line, groupId)
         case Some(ing) => IngredientParsed(ing, groupId)
       }
-      println("sending to " + sender())
       sender() ! i
   }
 }

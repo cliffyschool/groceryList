@@ -21,7 +21,6 @@ import scala.util.{Failure, Success}
 
 class ListService(gatherActor: ActorRef)(implicit ec:ExecutionContext) extends Directives {
 
-  import spray.json._
   import JsonProtocol._
   implicit val timeout = Timeout(5 seconds)
 
@@ -35,8 +34,6 @@ class ListService(gatherActor: ActorRef)(implicit ec:ExecutionContext) extends D
           complete(responses.values.seq)
         } ~
         path("list" / Segment) { id =>
-          println("Getting " + id)
-          responses.keys.map(k => "Have " + k).map(println)
           complete(responses.get(id))
         }
     } ~
@@ -44,15 +41,11 @@ class ListService(gatherActor: ActorRef)(implicit ec:ExecutionContext) extends D
         path("list") {
           handleWith { gatherRequest: GatherIngredientsRequest =>
               val id = UUID.randomUUID().toString
-              println("Generated " + id)
-              val result =
               (gatherActor ? gatherRequest)
               .mapTo[GatherIngredientsResponse]
                 .onComplete{
                 case Success(r) =>
-                  println("succeeded for id " + id)
-                  responses.put(id, r);
-                  println("responses now has " + responses.size);
+                  responses.put(id, r)
                   id
                 case Failure(ex) => println("failure: " + ex); "failure"
               }

@@ -17,8 +17,6 @@ class MakeListSpec extends Specification with Directives with Specs2RouteTest wi
 
 //TODO: this spec reads badly
 
-  sequential
-
   "list endpoint should support" >> {
     "get list by id" in {
       val route = new ListService(gatherActor).listRoute
@@ -38,7 +36,7 @@ class MakeListSpec extends Specification with Directives with Specs2RouteTest wi
     "post ingredients, then get list" in {
       val route = new ListService(gatherActor).listRoute
       val listId = Post(s"/$path", GatherIngredientsRequest("1 cup butter\n2 tbsp. sugar")) ~> route ~> check {responseAs[String]}
-      Thread.sleep(1000)
+      Thread.sleep(500)
       val listContent = Get(s"/$path/$listId") ~> route ~> check {responseAs[GatherIngredientsResponse]}
       listContent.results must haveSize(2)
       listContent.results(0) must beAnInstanceOf[IngredientParsed]
