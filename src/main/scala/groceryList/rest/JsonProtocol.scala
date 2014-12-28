@@ -22,7 +22,7 @@ object JsonProtocol extends DefaultJsonProtocol {
       }
   }
   implicit val ingFormat = jsonFormat3(Ingredient)
-  implicit val noIngParsedFormat = jsonFormat1(NoIngredientParsed)
+  implicit val noIngParsedFormat = jsonFormat2(NoIngredientParsed)
   implicit object ParseResponseFormat extends RootJsonFormat[ParseResponse]{
     def write(a: ParseResponse) = a match {
       case p: IngredientParsed => p.toJson
@@ -34,6 +34,6 @@ object JsonProtocol extends DefaultJsonProtocol {
         case _ => value.convertTo[NoIngredientParsed]
       }
   }
-  implicit val ingParsedFormat = jsonFormat1(IngredientParsed)
+  implicit val ingParsedFormat = jsonFormat2(IngredientParsed)
   implicit val gatherResponseFormat = jsonFormat1(GatherIngredientsResponse)
 }

@@ -15,7 +15,7 @@ trait CoreActors extends StrategyComponent {
   val ourSystem = ActorSystem("system")
 
   def parseActor = ourSystem.actorOf(Props(new ParseIngredientActor(parser)))
-  def gatherActor = ourSystem.actorOf(Props(new GatherIngredientsActor(parseActor)))
+  def gatherActor = ourSystem.actorOf(Props(new GatherIngredientsActor()))
 
   implicit val timeout = Timeout(5, TimeUnit.SECONDS)
 

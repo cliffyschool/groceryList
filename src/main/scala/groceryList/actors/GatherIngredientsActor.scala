@@ -1,58 +1,44 @@
 package groceryList.actors
 
-import akka.actor.{ActorRef, Props, Actor}
-import akka.contrib.pattern.Aggregator
-import groceryList.actors.ParseIngredientActor.{NoIngredientParsed, IngredientParsed, ParseIngredient}
-import akka.util.Timeout
-import akka.pattern.{ ask, pipe }
-import groceryList.parse.{StrategyComponent, IngredientParser}
-import scala.collection.mutable.ArrayBuffer
-import scala.collection.parallel.mutable
-import scala.concurrent.duration._
-import scala.concurrent.ExecutionContext.Implicits.global
+import java.util.UUID
 
-/**
- * Created by cfreeman on 8/10/14.
- */
-class GatherIngredientsActor(parserRef: ActorRef) extends Actor with Aggregator with StrategyComponent{
+import akka.actor.{Actor, ActorRef, Props}
+import groceryList.actors.ParseIngredientActor.{IngredientParsed, NoIngredientParsed, ParseIngredient}
+import groceryList.parse.StrategyComponent
 
-  import context._
-  implicit val timeout = Timeout(5.seconds)
+import scala.collection.mutable
 
-  expectOnce {
-    case GatherIngredientsRequest(fromText) ⇒
+class GatherIngredientsActor extends Actor with StrategyComponent {
+  import collection.mutable.{ HashMap, MultiMap, Set }
+  val responses = new mutable.HashMap[String, mutable.Set[ParseResponse]]
+    with mutable.MultiMap[String, ParseResponse]
 
-      new IngredientAggregator(sender, parserRef, fromText)
-    case _ ⇒
-      //sender() ! CantUnderstand
-      context.stop(self)
+  val expectedResponseCount = collection.mutable.HashMap[String, (Int,ActorRef)]()
+
+  def parseActor = context.actorOf(Props(new ParseIngredientActor(parser)))
+
+  override def receive = {
+    case GatherIngredientsRequest(fromText) =>
+      val requestId = UUID.randomUUID().toString
+      val lines = fromText.split("\n").filter(s => s.trim.length > 0).toList.par
+      expectedResponseCount += requestId -> (lines.size, sender())
+      lines.map(s => ParseIngredient(s, requestId)).map(m => parseActor ! m)
+    case p: IngredientParsed =>
+      responses.addBinding(p.groupId, p)
+      sendResponses(p.groupId)
+    case n: NoIngredientParsed =>
+      responses.addBinding(n.groupId, n)
+      sendResponses(n.groupId)
+
   }
 
-  class IngredientAggregator(originalSender: ActorRef, parseActor: ActorRef, fromText: String)  {
-
-    val responses = ArrayBuffer.empty[ParseResponse]
-
-    val lines = fromText.split("\n").filter(s => s.trim.length > 0).toList.par
-    lines.map { line =>
-      parseActor ! ParseIngredient(line)
-      expect {
-        case p: IngredientParsed =>
-          responses += p
-          sendResponses
-        case n: NoIngredientParsed =>
-          responses += n
-          sendResponses
-      }
-    }
-
-    def sendResponses = {
-      if (responses.size == lines.size){
-        originalSender ! GatherIngredientsResponse(responses)
-        context.stop(self)
-      }
-    }
+  def sendResponses(requestId: String) = {
+    val resp = responses.getOrElse(requestId, Set()).toSeq
+    val expected = expectedResponseCount.getOrElse(requestId, (0, sender()))
+    if (resp.size == expected._1)
+      expected._2 ! GatherIngredientsResponse(resp)
   }
- }
+}
 
 case class GatherIngredientsRequest(fromText: String)
 case class GatherIngredientsResponse(results: Seq[ParseResponse])

@@ -11,19 +11,20 @@ import groceryList.parse.{IngredientParser, DefaultIngredientParser}
 class ParseIngredientActor(parser: IngredientParser) extends Actor
 {
   def receive = {
-    case (ParseIngredient(line)) =>
+    case (ParseIngredient(line, groupId)) =>
       val i = parser.fromLine(line) match {
-        case None => NoIngredientParsed(line)
-        case Some(i) => IngredientParsed(i)
+        case None => NoIngredientParsed(line, groupId)
+        case Some(ing) => IngredientParsed(ing, groupId)
       }
-      sender ! i
+      println("sending to " + sender())
+      sender() ! i
   }
 }
 
 trait ParseResponse
 
 object ParseIngredientActor {
-  case class ParseIngredient(line: String)
-  case class IngredientParsed(ingredient: Ingredient) extends ParseResponse
-  case class NoIngredientParsed(from: String) extends ParseResponse
+  case class ParseIngredient(line: String, groupId: String)
+  case class IngredientParsed(ingredient: Ingredient, groupId: String) extends ParseResponse
+  case class NoIngredientParsed(from: String, groupId: String) extends ParseResponse
 }
