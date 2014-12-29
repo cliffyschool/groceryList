@@ -27,7 +27,8 @@ object ParseIngredientStrategy {
     "pound" -> Seq("pounds", "lbs", "lbs.", "lb."),
     "can" -> Seq("cans"),
     "stick" -> Seq("sticks"),
-    "jar" -> Seq("jars")
+    "jar" -> Seq("jars"),
+    "jug" -> Seq("jugs")
   ))
 
   def parseAmount: (String) => Option[Double] = {
@@ -50,7 +51,7 @@ object ParseIngredientStrategy {
     .toSeq
   }
 
-  def assumeEasyFormat: (String) => Option[Ingredient] = {
+  def simpleFormat: (String) => Option[Ingredient] = {
     case s: String if s.isNullOrEmpty => None
     case line: String =>
       line.split(" ") match {
@@ -69,7 +70,7 @@ object ParseIngredientStrategy {
     }
   }
 
-  def assumeNumericallyQualifiedUnit (line:String) : Option[Ingredient] = {
+  def numericallyQualifiedUnit (line:String) : Option[Ingredient] = {
     for {
       knownUnits <- Option(detectKnownUnits(line))
       if knownUnits.length >= 2
@@ -83,26 +84,26 @@ object ParseIngredientStrategy {
     } yield Ingredient(name = everythingAfterMainUnit, unit = Some(qualifiedUnit), amount = Some(firstNumOverall))
   }
 
-  def assumeNoUnits(line : String): Option[Ingredient] = {
+  def noUnits(line : String): Option[Ingredient] = {
       numberOrRatioRegex.findFirstMatchIn(line)
         .flatMap(rgxMatch =>Some(Ingredient(  line.substring(rgxMatch.end).trim,
                                               parseAmount(rgxMatch.matched),
                                               None)))
   }
 
-  def assumeItemNameOnly: (String) => Option[Ingredient] = {
+  def itemNameOnly: (String) => Option[Ingredient] = {
     case s:String if s.isNullOrEmpty => None
     case line:String => Some(Ingredient(line, None, None))
   }
 
-  def assumeKnownUnit(line: String) : Option[Ingredient] = {
+  def knownUnit(line: String) : Option[Ingredient] = {
     for {
       firstMatch <- detectKnownUnits(line).headOption
       unitQualifier <- findLastNumberBefore(line, firstMatch.startOfMatch)
       firstNumOverall <- numberOrRatioRegex.findFirstMatchIn(line)
       if unitQualifier.startOfMatch == firstNumOverall.start
       everythingAfterUnit = line.substring(firstMatch.endOfMatch).trim
-      if (everythingAfterUnit.length > 0)
+      if everythingAfterUnit.length > 0
     } yield
       Ingredient(everythingAfterUnit, Some(unitQualifier.matched), Some(firstMatch.matched))
   }

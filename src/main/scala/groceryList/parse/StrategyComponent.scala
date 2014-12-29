@@ -8,11 +8,11 @@ import groceryList.model.Ingredient
 trait StrategyComponent {
 
   val strategies = Array[(String, (String) => Option[Ingredient])](
-    "easy" -> ParseIngredientStrategy.assumeEasyFormat,
-    "ingredientWithNumbers" -> ParseIngredientStrategy.assumeNumericallyQualifiedUnit,
-    "knownUnit" -> ParseIngredientStrategy.assumeKnownUnit,
-    "noUnits" -> ParseIngredientStrategy.assumeNoUnits,
-    "itemNameOnly" -> ParseIngredientStrategy.assumeItemNameOnly
+    "easy" -> ParseIngredientStrategy.simpleFormat,
+    "ingredientWithNumbers" -> ParseIngredientStrategy.numericallyQualifiedUnit,
+    "knownUnit" -> ParseIngredientStrategy.knownUnit,
+    "noUnits" -> ParseIngredientStrategy.noUnits,
+    "itemNameOnly" -> ParseIngredientStrategy.itemNameOnly
   )
   val parser = new DefaultIngredientParser(strategies)
 }
