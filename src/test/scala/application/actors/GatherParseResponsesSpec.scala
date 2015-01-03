@@ -26,7 +26,7 @@ class GatherParseResponsesSpec extends Specification with LineParserComponent{
       gatherActor ! GatherIngredientsRequest("1 cup sugar\n1 tbsp. pepper")
 
       val msg = expectMsgType[GatherIngredientsResponse]
-      msg.results must haveSize(2)
+      msg.results.lines must haveSize(2)
     }
   }
 

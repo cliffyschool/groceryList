@@ -24,7 +24,7 @@ class ListService(gatherActor: ActorRef)(implicit ec:ExecutionContext) extends D
   import JsonProtocol._
   implicit val timeout = Timeout(5 seconds)
 
-  val responses = ParMap("abc" -> GatherIngredientsResponse(Seq(LineCreated(Line("butter", Some(1), Some(WellKnownUnitOfMeasure("cup"))), "123"))))
+  val responses = ParMap("abc" -> GatherIngredientsResponse(domain.List(Seq(Line("butter", Some(1), Some(WellKnownUnitOfMeasure("cup")))))))
   val listRoute =
     get {
       pathSingleSlash {

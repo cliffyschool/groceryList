@@ -3,6 +3,7 @@ package controllers
 import application.actors.LineActor.LineCreated
 import application.actors.{Core, CoreActors, GatherIngredientsRequest, GatherIngredientsResponse}
 import controllers.JsonProtocol._
+import domain.line.Line
 import org.specs2.mutable.Specification
 import spray.httpx.SprayJsonSupport._
 import spray.routing.Directives
@@ -19,7 +20,7 @@ class ListEndpointSpec extends Specification with Directives with Specs2RouteTes
       val route = new ListService(gatherActor).listRoute
       Get(s"/$path/abc") ~> route ~> check {
         val gatherResponse = responseAs[GatherIngredientsResponse]
-        gatherResponse.results must not beEmpty
+        gatherResponse.results.lines must not beEmpty
       }
     }
 
@@ -35,8 +36,8 @@ class ListEndpointSpec extends Specification with Directives with Specs2RouteTes
       val listId = Post(s"/$path", GatherIngredientsRequest("1 cup butter\n2 tbsp. sugar")) ~> route ~> check {responseAs[String]}
       Thread.sleep(500)
       val listContent = Get(s"/$path/$listId") ~> route ~> check {responseAs[GatherIngredientsResponse]}
-      listContent.results must haveSize(2)
-      listContent.results(0) must beAnInstanceOf[LineCreated]
+      listContent.results.lines must haveSize(2)
+      listContent.results.lines(0) must beAnInstanceOf[Line]
     }
   }
 }

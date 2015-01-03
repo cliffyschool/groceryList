@@ -35,10 +35,13 @@ class GatherIngredientsActor extends Actor with LineParserComponent{
   def sendResponses(requestId: String) = {
     val resp = responses.getOrElse(requestId, Set()).toSeq
     val expected = expectedResponseCount.getOrElse(requestId, (0, sender()))
-    if (resp.size == expected._1)
-      expected._2 ! GatherIngredientsResponse(resp)
+    if (resp.size == expected._1) {
+      val lines = resp.map{ case l:LineCreated => l.line}
+      val list = domain.List(lines)
+      expected._2 ! GatherIngredientsResponse(list)
+    }
   }
 }
 
 case class GatherIngredientsRequest(fromText: String)
-case class GatherIngredientsResponse(results: Seq[LineResponse])
+case class GatherIngredientsResponse(results: domain.List)

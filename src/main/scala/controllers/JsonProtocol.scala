@@ -3,11 +3,11 @@ package controllers
 import application.actors.LineActor.{LineCreated, LineNotCreated}
 import application.actors.{GatherIngredientsRequest, GatherIngredientsResponse, LineResponse}
 import domain.line.Line
-import domain.{UnitOfMeasure, UnknownUnitOfMeasure, WellKnownUnitOfMeasure}
+import domain.{ListItem, UnitOfMeasure, UnknownUnitOfMeasure, WellKnownUnitOfMeasure}
 import spray.json.{DefaultJsonProtocol, JsString, JsValue, RootJsonFormat, _}
 
 object JsonProtocol extends DefaultJsonProtocol {
-  implicit val gatherRequestFormat = jsonFormat1(GatherIngredientsRequest)
+
   implicit val unknownUnitFormat = jsonFormat1(UnknownUnitOfMeasure)
   implicit val knownUnitFormat = jsonFormat1(WellKnownUnitOfMeasure)
   implicit object UnitOfMeasureFormat extends RootJsonFormat[UnitOfMeasure] {
@@ -35,5 +35,8 @@ object JsonProtocol extends DefaultJsonProtocol {
       }
   }
   implicit val ingParsedFormat = jsonFormat2(LineCreated)
+  implicit val liFormat = jsonFormat4(ListItem)
+  implicit val listFormat: JsonFormat[domain.List] = jsonFormat1(domain.List)
   implicit val gatherResponseFormat = jsonFormat1(GatherIngredientsResponse)
+  implicit val gatherRequestFormat = jsonFormat1(GatherIngredientsRequest)
 }
