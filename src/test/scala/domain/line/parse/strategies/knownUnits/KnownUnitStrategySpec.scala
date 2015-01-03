@@ -1,8 +1,8 @@
 package domain.line.parse.strategies.knownUnits
 
 import domain.WellKnownUnitOfMeasure
-import domain.line.{LineParserStrategy, Line}
 import domain.line.parse.strategies.ParseStrategyTest
+import domain.line.{Line, LineParserStrategy}
 import org.specs2.mutable.Specification
 
 class KnownUnitStrategySpec extends Specification with ParseStrategyTest {

@@ -1,9 +1,8 @@
 package domain.line
 
-import domain.UnknownUnitOfMeasure
 import commons.StringUtils
-import StringUtils._
-import domain.WellKnownUnitOfMeasure
+import commons.StringUtils._
+import domain.{UnknownUnitOfMeasure, WellKnownUnitOfMeasure}
 
 
 object LineParserStrategy {

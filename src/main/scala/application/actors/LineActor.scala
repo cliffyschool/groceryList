@@ -1,9 +1,8 @@
 package application.actors
 
-import LineActor.{LineCreated, LineNotCreated, CreateLine}
-import akka.actor.{ActorSystem, ActorLogging, Actor, Props}
-import domain.UnitOfMeasure
-import domain.line.{LineParser, Line}
+import akka.actor.Actor
+import application.actors.LineActor.{CreateLine, LineCreated, LineNotCreated}
+import domain.line.{Line, LineParser}
 
 class LineActor(parser: LineParser) extends Actor
 {

@@ -1,9 +1,10 @@
 package application.actors
 
-import akka.actor.{ActorSystem, Props}
-import domain.line.LineParserComponent
-import akka.util.Timeout
 import java.util.concurrent.TimeUnit
+
+import akka.actor.{ActorSystem, Props}
+import akka.util.Timeout
+import domain.line.LineParserComponent
 
 trait CoreActors extends LineParserComponent {
   this: Core =>

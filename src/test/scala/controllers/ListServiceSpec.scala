@@ -1,21 +1,17 @@
 package controllers
 
-import application.actors.LineActor.LineCreated
-import application.actors.{Core, CoreActors, CreateList, ListCreated}
-import domain.{WellKnownUnitOfMeasure, UnknownUnitOfMeasure, ListRepository}
+import application.actors.{Core, CoreActors, CreateList}
 import domain.line.Line
-import org.json4s.{ShortTypeHints, DefaultFormats}
-import org.json4s.native.Serialization
+import domain.{ListRepository, UnknownUnitOfMeasure}
+import org.json4s.DefaultFormats
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
+import spray.http.StatusCodes._
 import spray.httpx.Json4sSupport
-import spray.httpx.SprayJsonSupport._
 import spray.routing.Directives
 import spray.testkit.Specs2RouteTest
-import spray.http.StatusCodes._
-import org.mockito.Matchers._
 
-class ListEndpointSpec extends Specification with Directives with Specs2RouteTest
+class ListServiceSpec extends Specification with Directives with Specs2RouteTest
 with Core
 with CoreActors
 with Json4sSupport

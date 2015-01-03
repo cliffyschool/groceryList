@@ -1,10 +1,9 @@
 package domain.line.parse
 
-import domain.line.{LineParserComponent, Line}
-import domain.{WellKnownUnitOfMeasure, UnknownUnitOfMeasure}
-import application.actors.Core
-import org.specs2.matcher.DataTables
+import domain.line.{Line, LineParserComponent}
+import domain.{UnknownUnitOfMeasure, WellKnownUnitOfMeasure}
 import org.specs2.Specification
+import org.specs2.matcher.DataTables
 
 class ParseAmountsSpec extends Specification with DataTables with LineParserComponent { def is =
   "tests for parsing ingredients"  ! e1

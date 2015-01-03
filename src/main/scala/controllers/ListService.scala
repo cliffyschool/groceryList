@@ -6,9 +6,8 @@ import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
 import application.actors.{CreateList, ListCreated}
-import domain.{WellKnownUnitOfMeasure, UnknownUnitOfMeasure, ListRepository}
-import org.json4s.{ShortTypeHints, DefaultFormats}
-import org.json4s.native.Serialization
+import domain.ListRepository
+import org.json4s.DefaultFormats
 import spray.http.StatusCodes
 import spray.httpx.Json4sSupport
 import spray.routing.Directives

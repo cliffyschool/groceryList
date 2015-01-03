@@ -1,6 +1,5 @@
 package domain.line
 
-import domain.ListItem
 import commons.StringUtils._
 
 trait LineParser {

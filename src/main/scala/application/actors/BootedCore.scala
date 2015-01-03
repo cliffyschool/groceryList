@@ -1,6 +1,6 @@
 package application.actors
 
-import akka.actor.{Props, ActorRefFactory, ActorSystem}
+import akka.actor.{ActorRefFactory, ActorSystem, Props}
 import akka.io.IO
 import application.{Api, RoutedHttpService}
 import spray.can.Http

@@ -3,13 +3,13 @@ package application.actors
 import java.util.UUID
 
 import akka.actor.{Actor, ActorRef, Props}
-import application.actors.LineActor.{LineCreated, LineNotCreated, CreateLine}
+import application.actors.LineActor.{CreateLine, LineCreated, LineNotCreated}
 import domain.line.LineParserComponent
 
 import scala.collection.mutable
 
 class ListActor extends Actor with LineParserComponent{
-  import collection.mutable.{ HashMap, MultiMap, Set }
+  import scala.collection.mutable.Set
   val responses = new mutable.HashMap[String, mutable.Set[LineResponse]]
     with mutable.MultiMap[String, LineResponse]
 

@@ -1,6 +1,6 @@
 package domain.line
 
-import domain.{WellKnownUnitOfMeasure, UnitOfMeasure}
+import domain.{UnitOfMeasure, WellKnownUnitOfMeasure}
 
 case class WellKnownUnitsFinder(unitsWithAbbreviations: Map[String, UnitOfMeasure]) {
   def matchKnownUnit(name: String) =

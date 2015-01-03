@@ -1,8 +1,8 @@
 package domain.line.parse.strategies.unitWithNumber
 
 import domain.UnknownUnitOfMeasure
-import domain.line.{LineParserStrategy, LineParserStrategyComponent, Line}
 import domain.line.parse.strategies.ParseStrategyTest
+import domain.line.{Line, LineParserStrategy, LineParserStrategyComponent}
 import org.specs2.matcher.DataTables
 import org.specs2.mutable.Specification
 

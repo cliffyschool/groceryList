@@ -2,7 +2,7 @@ package application.actors
 
 import akka.actor.{ActorSystem, Props}
 import akka.testkit.{ImplicitSender, TestKit}
-import application.actors.LineActor.{LineCreated, LineNotCreated, CreateLine}
+import application.actors.LineActor.{CreateLine, LineCreated, LineNotCreated}
 import domain.line.LineParserComponent
 import org.specs2.mutable.Specification
 
