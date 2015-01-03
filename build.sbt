@@ -16,6 +16,7 @@ libraryDependencies ++= Seq(
  "com.typesafe.akka" %% "akka-testkit" % akkaVersion % "test",
   "com.typesafe.akka" %% "akka-contrib" % akkaVersion,
    "io.spray" %% "spray-testkit" % sprayVersion % "test",
+"org.mockito" % "mockito-core" % "1.8.5" % "test",
   "io.spray" %% "spray-can" % sprayVersion,
   "io.spray" %% "spray-routing" % sprayVersion,
   "org.json4s"          %% "json4s-native"      % "3.2.9",

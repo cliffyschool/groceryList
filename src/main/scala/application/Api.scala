@@ -9,5 +9,5 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 trait Api extends HttpService with CoreActors with Core{
   val routes =
-      new ListService(listActor).listRoute
+      new ListService(listActor, null).listRoute
 }

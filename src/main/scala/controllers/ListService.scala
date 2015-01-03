@@ -5,34 +5,25 @@ import java.util.UUID
 import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
-import application.actors.LineActor.LineCreated
 import application.actors.{CreateList, ListCreated}
-import domain.WellKnownUnitOfMeasure
-import domain.line.Line
+import domain.{WellKnownUnitOfMeasure, UnknownUnitOfMeasure, ListRepository}
+import org.json4s.{ShortTypeHints, DefaultFormats}
+import org.json4s.native.Serialization
 import spray.http.StatusCodes
 import spray.httpx.Json4sSupport
-import spray.httpx.SprayJsonSupport._
 import spray.routing.Directives
 
-import scala.collection.parallel.mutable
-import scala.collection.parallel.mutable.ParMap
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}
-import org.json4s.DefaultFormats
 
 case class ListId(id: String)
 
-class ListService(gatherActor: ActorRef)(implicit ec:ExecutionContext) extends Directives with Json4sSupport {
+class ListService(listActor: ActorRef, listRepository: ListRepository)(implicit ec:ExecutionContext) extends Directives
+with Json4sSupport {
 
   implicit val timeout = Timeout(5 seconds)
-
-  // TODO: build repo for lists
-  val responses = ParMap("abc" -> domain.List(Seq(Line("butter", Some(1), Some(WellKnownUnitOfMeasure("cup"))))))
-
-  val json4sFormats = DefaultFormats
-
-
+  implicit val json4sFormats = DefaultFormats + new UnitOfMeasureSerializer
 
   val listRoute =
     get {
@@ -40,22 +31,24 @@ class ListService(gatherActor: ActorRef)(implicit ec:ExecutionContext) extends D
         redirect("/list", StatusCodes.Found)
       } ~
         path("list") {
-          complete(responses.values.seq)
+          val lists = listRepository.getAll
+          complete(lists)
         } ~
         path("list" / Segment) { id =>
-          val list = responses.get(id)
+          val list = listRepository.findById(id)
           complete(list)
         }
     } ~
       post {
         path("list") {
-          handleWith { gatherRequest: CreateList =>
+          handleWith {
+            gatherRequest: CreateList =>
               val id = UUID.randomUUID().toString
-              (gatherActor ? gatherRequest)
+              (listActor ? gatherRequest)
               .mapTo[ListCreated]
                 .onComplete{
                 case Success(r) =>
-                  responses.put(id, r.results)
+                  listRepository.save(id, r.results)
                 case Failure(ex) => println("failure: " + ex); "failure"
               }
             ListId(id)
