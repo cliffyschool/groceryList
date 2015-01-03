@@ -3,7 +3,7 @@ package domain.line
 import commons.StringUtils._
 
 trait LineParser {
-  this:LineParserStrategyComponent =>
+  this:LineParserStrategiesComponent =>
 
   def fromLine: (String) => Option[Line] = {
     case line if line.isNullOrEmpty => None
@@ -13,5 +13,5 @@ trait LineParser {
 }
 
 trait LineParserComponent {
-  val parser = new LineParser with LineParserStrategyComponent
+  val parser = new LineParser with LineParserStrategiesComponent
 }

@@ -1,12 +1,12 @@
 package domain.line.parse.strategies.simpleFormat
 
-import domain.line.LineParserStrategy
+import domain.line.LineParserStrategies
 import domain.line.parse.strategies.ParseStrategyTest
 import org.specs2.mutable.Specification
 
 class SimpleFormatStrategySpec extends Specification with ParseStrategyTest{
 
-  override def parse = LineParserStrategy.simpleFormat
+  override def parse = new LineParserStrategies().simpleFormat
 
   "Given a line with less than 3 chunks, it" should {
     "not return a result" in {

@@ -2,7 +2,7 @@ package domain.line.parse.strategies.simpleFormat
 
 import domain.UnknownUnitOfMeasure
 import domain.line.parse.strategies.ParseStrategyTest
-import domain.line.{Line, LineParserStrategy, LineParserStrategyComponent}
+import domain.line.{Line, LineParserStrategies, LineParserStrategiesComponent}
 import org.specs2.matcher.DataTables
 import org.specs2.mutable.Specification
 
@@ -10,11 +10,11 @@ import org.specs2.mutable.Specification
 class GivenSimpleFormatExamples extends Specification
 with DataTables
 with ParseStrategyTest
-with LineParserStrategyComponent { override def is =
+with LineParserStrategiesComponent { override def is =
 
   "tests for parsing simple format"  ! examples
 
-  override def parse = LineParserStrategy.simpleFormat
+  override def parse = new LineParserStrategies().simpleFormat
 
   def examples =
     "line" | "expectedAmount" | "expectedUnit" | "expectedName" |

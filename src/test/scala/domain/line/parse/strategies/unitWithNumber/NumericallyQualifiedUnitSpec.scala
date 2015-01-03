@@ -1,12 +1,12 @@
 package domain.line.parse.strategies.unitWithNumber
 
-import domain.line.LineParserStrategy
+import domain.line.LineParserStrategies
 import domain.line.parse.strategies.ParseStrategyTest
 import org.specs2.mutable.Specification
 
 class NumericallyQualifiedUnitSpec extends Specification with ParseStrategyTest {
 
-  override def parse = LineParserStrategy.numericallyQualifiedUnit
+  override def parse = new LineParserStrategies().numericallyQualifiedUnit
 
   "Given a line with no known units, it" should {
     "return none" in {

@@ -5,7 +5,7 @@ import commons.StringUtils._
 import domain.{UnknownUnitOfMeasure, WellKnownUnitOfMeasure}
 
 
-object LineParserStrategy {
+class LineParserStrategies {
 
   val wellKnownUnitsFinder = WellKnownUnitsFinder(Map(
     "cup" -> Seq("cups", "c."),
@@ -118,4 +118,17 @@ object LineParserStrategy {
     val compoundUnit = qualifierQuantity + " " + qualifierUnit.name + " " + mainUnit.name
     UnknownUnitOfMeasure(compoundUnit)
   }
+}
+
+trait LineParserStrategiesComponent {
+
+  private val strategyObject = new LineParserStrategies
+
+  val strategies = Array[Strategy](
+    "easy" -> strategyObject.simpleFormat,
+    "ingredientWithNumbers" -> strategyObject.numericallyQualifiedUnit,
+    "knownUnit" -> strategyObject.knownUnit,
+    "noUnits" -> strategyObject.noUnits,
+    "itemNameOnly" -> strategyObject.itemNameOnly
+  )
 }

@@ -53,6 +53,7 @@ with Mockito{
 
   "POST a valid CreateList request" should {
     val route = new ListService(listActor, mock[ListRepository]).listRoute
+    // TODO: reusing ListActor messages for HTTP requests. Need to split out.
     val request = CreateList("some butter")
 
     "return an id" in {

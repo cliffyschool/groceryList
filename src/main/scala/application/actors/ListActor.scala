@@ -10,9 +10,11 @@ import scala.collection.mutable
 
 class ListActor extends Actor with LineParserComponent{
   import scala.collection.mutable.Set
+
+  // TODO: stuff needs to go. An actor should not be managing which messages get mapped to
+  // which responses.
   val responses = new mutable.HashMap[String, mutable.Set[LineResponse]]
     with mutable.MultiMap[String, LineResponse]
-
   val expectedResponseCount = collection.mutable.HashMap[String, (Int,ActorRef)]()
 
   def lineActor = context.actorOf(Props(new LineActor(parser)))
@@ -43,5 +45,6 @@ class ListActor extends Actor with LineParserComponent{
   }
 }
 
+// TODO: add message trait
 case class CreateList(fromText: String)
 case class ListCreated(results: domain.List)

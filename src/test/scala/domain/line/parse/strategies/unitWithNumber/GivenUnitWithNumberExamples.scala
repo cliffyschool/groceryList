@@ -2,7 +2,7 @@ package domain.line.parse.strategies.unitWithNumber
 
 import domain.UnknownUnitOfMeasure
 import domain.line.parse.strategies.ParseStrategyTest
-import domain.line.{Line, LineParserStrategy, LineParserStrategyComponent}
+import domain.line.{Line, LineParserStrategies, LineParserStrategiesComponent}
 import org.specs2.matcher.DataTables
 import org.specs2.mutable.Specification
 
@@ -10,11 +10,11 @@ import org.specs2.mutable.Specification
 class GivenUnitWithNumberExamples extends Specification
  with DataTables
  with ParseStrategyTest
- with LineParserStrategyComponent { override def is =
+ with LineParserStrategiesComponent { override def is =
 
    "tests for parsing lines wherein the unit is qualified by a numeric (e.g., 'one 10 1/2 can of tomatoes')"  ! examples
 
-   override def parse = LineParserStrategy.numericallyQualifiedUnit
+   override def parse = new LineParserStrategies().numericallyQualifiedUnit
 
    def examples =
      "line" | "expectedAmount" | "expectedUnit" | "expectedName" |

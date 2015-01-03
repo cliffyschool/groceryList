@@ -2,12 +2,12 @@ package domain.line.parse.strategies.knownUnits
 
 import domain.WellKnownUnitOfMeasure
 import domain.line.parse.strategies.ParseStrategyTest
-import domain.line.{Line, LineParserStrategy}
+import domain.line.{Line, LineParserStrategies}
 import org.specs2.mutable.Specification
 
 class KnownUnitStrategySpec extends Specification with ParseStrategyTest {
 
-  override def parse = LineParserStrategy.knownUnit
+  override def parse = new LineParserStrategies().knownUnit
 
   "Given a line containing a known unit anywhere after a number, it" should {
     val ingredient = parse("1 gibberish hey there cup 1.4 blah blee")
