@@ -1,6 +1,6 @@
 # README #
 
-Scratch project for learning about Akka actors, plus a bit of Spray.Spray
+Scratch project for learning about Akka actors, plus a bit of Spray.
 
 The idea is to take text from recipes' ingredients like
 
