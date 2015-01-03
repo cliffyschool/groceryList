@@ -6,7 +6,7 @@ import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
 import application.actors.LineActor.LineCreated
-import application.actors.{GatherIngredientsRequest, GatherIngredientsResponse}
+import application.actors.{CreateList, ListCreated}
 import domain.WellKnownUnitOfMeasure
 import domain.line.Line
 import spray.http.StatusCodes
@@ -21,10 +21,12 @@ import scala.util.{Failure, Success}
 
 class ListService(gatherActor: ActorRef)(implicit ec:ExecutionContext) extends Directives {
 
-  import JsonProtocol._
+  import JsonAdapters._
   implicit val timeout = Timeout(5 seconds)
 
-  val responses = ParMap("abc" -> GatherIngredientsResponse(domain.List(Seq(Line("butter", Some(1), Some(WellKnownUnitOfMeasure("cup")))))))
+  // TODO: build repo for lists
+  val responses = ParMap("abc" -> ListCreated(domain.List(Seq(Line("butter", Some(1), Some(WellKnownUnitOfMeasure("cup")))))))
+
   val listRoute =
     get {
       pathSingleSlash {
@@ -39,10 +41,10 @@ class ListService(gatherActor: ActorRef)(implicit ec:ExecutionContext) extends D
     } ~
       post {
         path("list") {
-          handleWith { gatherRequest: GatherIngredientsRequest =>
+          handleWith { gatherRequest: CreateList =>
               val id = UUID.randomUUID().toString
               (gatherActor ? gatherRequest)
-              .mapTo[GatherIngredientsResponse]
+              .mapTo[ListCreated]
                 .onComplete{
                 case Success(r) =>
                   responses.put(id, r)

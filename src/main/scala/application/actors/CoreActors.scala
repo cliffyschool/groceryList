@@ -12,7 +12,7 @@ trait CoreActors extends LineParserComponent {
   val ourSystem = ActorSystem("system")
 
   def parseActor = ourSystem.actorOf(Props(new LineActor(parser)))
-  def gatherActor = ourSystem.actorOf(Props(new GatherIngredientsActor()))
+  def gatherActor = ourSystem.actorOf(Props(new ListActor()))
 
   implicit val timeout = Timeout(5, TimeUnit.SECONDS)
 

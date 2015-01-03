@@ -8,21 +8,21 @@ import domain.line.LineParserComponent
 
 import scala.collection.mutable
 
-class GatherIngredientsActor extends Actor with LineParserComponent{
+class ListActor extends Actor with LineParserComponent{
   import collection.mutable.{ HashMap, MultiMap, Set }
   val responses = new mutable.HashMap[String, mutable.Set[LineResponse]]
     with mutable.MultiMap[String, LineResponse]
 
   val expectedResponseCount = collection.mutable.HashMap[String, (Int,ActorRef)]()
 
-  def parseActor = context.actorOf(Props(new LineActor(parser)))
+  def lineActor = context.actorOf(Props(new LineActor(parser)))
 
   override def receive = {
-    case GatherIngredientsRequest(fromText) =>
+    case CreateList(fromText) =>
       val requestId = UUID.randomUUID().toString
       val lines = fromText.split("\n").filter(s => s.trim.length > 0).toList.par
       expectedResponseCount += requestId -> (lines.size, sender())
-      lines.map(s => CreateLine(s, requestId)).map(m => parseActor ! m)
+      lines.map(s => CreateLine(s, requestId)).map(m => lineActor ! m)
     case p: LineCreated =>
       responses.addBinding(p.groupId, p)
       sendResponses(p.groupId)
@@ -38,10 +38,10 @@ class GatherIngredientsActor extends Actor with LineParserComponent{
     if (resp.size == expected._1) {
       val lines = resp.map{ case l:LineCreated => l.line}
       val list = domain.List(lines)
-      expected._2 ! GatherIngredientsResponse(list)
+      expected._2 ! ListCreated(list)
     }
   }
 }
 
-case class GatherIngredientsRequest(fromText: String)
-case class GatherIngredientsResponse(results: domain.List)
+case class CreateList(fromText: String)
+case class ListCreated(results: domain.List)
