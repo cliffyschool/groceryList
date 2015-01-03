@@ -1,7 +1,7 @@
 package controllers
 
-import application.actors.ParseIngredientActor.{IngredientParsed, NoIngredientParsed}
-import application.actors.{GatherIngredientsRequest, GatherIngredientsResponse, ParseResponse}
+import application.actors.LineActor.{LineCreated, LineNotCreated}
+import application.actors.{GatherIngredientsRequest, GatherIngredientsResponse, LineResponse}
 import domain.line.Line
 import domain.{UnitOfMeasure, UnknownUnitOfMeasure, WellKnownUnitOfMeasure}
 import spray.json.{DefaultJsonProtocol, JsString, JsValue, RootJsonFormat, _}
@@ -22,18 +22,18 @@ object JsonProtocol extends DefaultJsonProtocol {
       }
   }
   implicit val ingFormat = jsonFormat3(Line)
-  implicit val noIngParsedFormat = jsonFormat2(NoIngredientParsed)
-  implicit object ParseResponseFormat extends RootJsonFormat[ParseResponse]{
-    def write(a: ParseResponse) = a match {
-      case p: IngredientParsed => p.toJson
-      case n: NoIngredientParsed => n.toJson
+  implicit val noIngParsedFormat = jsonFormat2(LineNotCreated)
+  implicit object ParseResponseFormat extends RootJsonFormat[LineResponse]{
+    def write(a: LineResponse) = a match {
+      case p: LineCreated => p.toJson
+      case n: LineNotCreated => n.toJson
     }
     def read(value: JsValue) =
       value.asJsObject match {
-        case o if o.fields("ingredient") != null => value.convertTo[IngredientParsed]
-        case _ => value.convertTo[NoIngredientParsed]
+        case o if o.fields("line") != null => value.convertTo[LineCreated]
+        case _ => value.convertTo[LineNotCreated]
       }
   }
-  implicit val ingParsedFormat = jsonFormat2(IngredientParsed)
+  implicit val ingParsedFormat = jsonFormat2(LineCreated)
   implicit val gatherResponseFormat = jsonFormat1(GatherIngredientsResponse)
 }

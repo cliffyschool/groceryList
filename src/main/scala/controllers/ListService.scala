@@ -5,7 +5,7 @@ import java.util.UUID
 import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
-import application.actors.ParseIngredientActor.IngredientParsed
+import application.actors.LineActor.LineCreated
 import application.actors.{GatherIngredientsRequest, GatherIngredientsResponse}
 import domain.WellKnownUnitOfMeasure
 import domain.line.Line
@@ -24,7 +24,7 @@ class ListService(gatherActor: ActorRef)(implicit ec:ExecutionContext) extends D
   import JsonProtocol._
   implicit val timeout = Timeout(5 seconds)
 
-  val responses = ParMap("abc" -> GatherIngredientsResponse(Seq(IngredientParsed(Line("butter", Some(1), Some(WellKnownUnitOfMeasure("cup"))), "123"))))
+  val responses = ParMap("abc" -> GatherIngredientsResponse(Seq(LineCreated(Line("butter", Some(1), Some(WellKnownUnitOfMeasure("cup"))), "123"))))
   val listRoute =
     get {
       pathSingleSlash {

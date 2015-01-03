@@ -2,7 +2,7 @@ package application.actors
 
 import akka.actor._
 import akka.testkit._
-import application.actors.ParseIngredientActor._
+import application.actors.LineActor._
 import domain.line.LineParserComponent
 import org.specs2.matcher.ResultMatchers
 import org.specs2.mutable._
@@ -21,7 +21,7 @@ class ScatterParseRequestsSpec extends Specification with LineParserComponent wi
       val twoValidIngredients = "1 cup butter\n1 tbsp. salt"
       gatherActor ! GatherIngredientsRequest(twoValidIngredients)
 
-      val ingredientNames = (1 to 2).map(i => stubParseActor.expectMsgType[ParseIngredient].line)
+      val ingredientNames = (1 to 2).map(i => stubParseActor.expectMsgType[CreateLine].lineString)
       ingredientNames must contain("1 cup butter", "1 tbsp. salt")
     }
   }
@@ -30,8 +30,8 @@ class ScatterParseRequestsSpec extends Specification with LineParserComponent wi
     "send exactly 1 parse request" in new WithoutParseActor{
         val oneIngredient5BlankLines = "1 cup butter\n\n \n\n \n"
         gatherActor ! GatherIngredientsRequest(oneIngredient5BlankLines)
-        val msg = stubParseActor.expectMsgType[ParseIngredient]
-        msg.line must equalTo("1 cup butter")
+        val msg = stubParseActor.expectMsgType[CreateLine]
+        msg.lineString must equalTo("1 cup butter")
         stubParseActor.expectNoMsg()
     }
   }

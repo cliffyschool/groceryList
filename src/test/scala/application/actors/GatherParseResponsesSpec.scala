@@ -8,7 +8,7 @@ import org.specs2.mutable.Specification
 class GatherParseResponsesSpec extends Specification with LineParserComponent{
 
   class WithParseActor extends TestKit(ActorSystem("test")) with org.specs2.specification.Scope with ImplicitSender {
-    val parseActor = system.actorOf(Props(new ParseIngredientActor(parser)))
+    val parseActor = system.actorOf(Props(new LineActor(parser)))
     val gatherActor = system.actorOf(Props(new GatherIngredientsActor()))
   }
 

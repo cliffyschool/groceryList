@@ -1,6 +1,6 @@
 package controllers
 
-import application.actors.ParseIngredientActor.IngredientParsed
+import application.actors.LineActor.LineCreated
 import application.actors.{Core, CoreActors, GatherIngredientsRequest, GatherIngredientsResponse}
 import controllers.JsonProtocol._
 import org.specs2.mutable.Specification
@@ -36,7 +36,7 @@ class ListEndpointSpec extends Specification with Directives with Specs2RouteTes
       Thread.sleep(500)
       val listContent = Get(s"/$path/$listId") ~> route ~> check {responseAs[GatherIngredientsResponse]}
       listContent.results must haveSize(2)
-      listContent.results(0) must beAnInstanceOf[IngredientParsed]
+      listContent.results(0) must beAnInstanceOf[LineCreated]
     }
   }
 }
