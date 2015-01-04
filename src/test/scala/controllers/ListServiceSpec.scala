@@ -2,7 +2,7 @@ package controllers
 
 import application.actors.{Core, CoreActors, CreateList}
 import domain.line.Line
-import domain.{ListRepository, UnknownUnitOfMeasure}
+import domain.{StubListRepository, ListRepository, UnknownUnitOfMeasure}
 import org.json4s.DefaultFormats
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
@@ -11,23 +11,33 @@ import spray.httpx.Json4sSupport
 import spray.routing.Directives
 import spray.testkit.Specs2RouteTest
 
-class ListServiceSpec extends Specification with Directives with Specs2RouteTest
+class ListServiceSpec extends Specification
+with Directives
+with Specs2RouteTest
 with Core
 with CoreActors
 with Json4sSupport
 with Mockito{
 
-
-  val path = "list"
-
   val json4sFormats = DefaultFormats + new UnitOfMeasureSerializer
 
-  //TODO: this spec reads badly
+  "GET /list" should {
+    val listRepo = mock[ListRepository]
+    val lists = Seq(domain.List(Seq(Line("test", Some(3.5), Some(UnknownUnitOfMeasure("myUnit"))))))
+    listRepo.getAll.returns(lists)
+    val route = new ListService(listActor, listRepo).listRoute
+
+    "return all the lists" in {
+      Get("/list") ~> route ~> check {
+        responseAs[Seq[domain.List]] must equalTo(lists)
+      }
+    }
+  }
 
   "GET /list/nonExistantId" should {
-    val listRepo = mock[ListRepository]
-    listRepo.findById(anyString).returns(None)
-    val route = new ListService(listActor, listRepo).listRoute
+    val listRepo = new StubListRepository
+    val listService = new ListService(listActor, listRepo)
+    val route = listService.listRoute
 
     "return NotFound for a nonExistant id" in {
       Get("/list/nonExistantId") ~> route ~> check {
@@ -52,26 +62,28 @@ with Mockito{
   }
 
   "POST a valid CreateList request" should {
-    val route = new ListService(listActor, mock[ListRepository]).listRoute
+    val listRepo = mock[ListRepository]
+    val route = new ListService(listActor, listRepo).listRoute
     // TODO: reusing ListActor messages for HTTP requests. Need to split out.
     val request = CreateList("some butter")
 
     "return an id" in {
-      Post(s"/$path", request) ~> route ~> check {
+      Post(s"/list", request) ~> route ~> check {
         responseAs[ListId] must not beNull
       }
     }
   }
 
   "POST junk" should {
-    val route = new ListService(listActor, mock[ListRepository]).listRoute
-    val request = "{hey}"
-
-    "return a BadRequest" in {
+    val listRepo = mock[ListRepository]
+    val route = new ListService(listActor, listRepo).listRoute
+    val request = "hey" 
+    
+    "get rejected" in {
       Post("/list", request) ~> route ~> check {
-        println("\n\nstatus:" + status)
-        status must equalTo(BadRequest)
+        rejections must haveSize(1) 
+        rejections(0) must beAnInstanceOf[spray.routing.MalformedRequestContentRejection]
       }
-    }.pendingUntilFixed
+    }
   }
 }
